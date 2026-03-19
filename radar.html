@@ -1,0 +1,2687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Investment Radar Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050810;--bg2:#080c18;--sf:#0c1120;--b1:#141c2e;--b2:#1a2540;
+  --green:#00d4aa;--red:#ff4757;--amber:#ffa726;--blue:#4f8ef7;
+  --cyan:#00c8e0;--gold:#ffcc44;--purple:#9b59ff;--orange:#ff6b35;
+  --text:#e8f0fe;--t2:#7a90b8;--t3:#3a4d6e;
+  --us:#4f8ef7;--in:#ff9933;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ─── INPUT SCREEN ─── */
+.ip{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto;gap:10px}
+.ip-badge{display:flex;align-items:center;gap:8px;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);border-radius:20px;padding:6px 14px;margin-bottom:4px}
+.ip-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.ip-badge-txt{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.5px;color:var(--blue);text-transform:uppercase}
+.ip-h{font-size:24px;font-weight:700;letter-spacing:-.5px;text-align:center;background:linear-gradient(135deg,var(--text),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ip-s{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:2px;text-align:center;text-transform:uppercase}
+.ip-box{width:100%;max-width:340px;background:var(--sf);border:1px solid var(--b2);border-radius:14px;padding:14px 16px}
+.ip-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--t3);margin-bottom:8px;text-transform:uppercase}
+.ip-row{display:flex;align-items:center;gap:7px}
+.ip-sym{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--gold)}
+.ip-inp{background:transparent;border:none;outline:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;width:100%;letter-spacing:-1px}
+.ip-inp::placeholder{color:var(--t3)}
+.ip-fmt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);margin-top:5px;min-height:14px}
+.presets{display:flex;gap:5px;width:100%;max-width:340px;flex-wrap:wrap}
+.preset{flex:1;min-width:56px;padding:7px 4px;background:var(--sf);border:1px solid var(--b2);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);text-align:center;cursor:pointer;transition:all .2s}
+.preset.sel,.preset:active{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.4);color:var(--blue)}
+.opts{width:100%;max-width:340px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{background:var(--sf);border:1px solid var(--b2);border-radius:12px;padding:11px}
+.opt-l{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;color:var(--t3);margin-bottom:7px;text-transform:uppercase}
+.opt-s{background:transparent;border:none;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;width:100%;outline:none;cursor:pointer}
+.opt-s option{background:var(--bg2)}
+.go{width:100%;max-width:340px;padding:15px;background:linear-gradient(135deg,#4f8ef7,#00c8e0);color:white;border:none;border-radius:12px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+.go:active{transform:scale(.98);opacity:.9}
+.ip-note{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-align:center;line-height:1.9;width:100%;max-width:340px}
+
+/* ─── LOADING ─── */
+.ls{position:fixed;inset:0;z-index:300;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px}
+.ls-logo{font-size:32px;margin-bottom:4px}
+.ls-amt{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--gold);letter-spacing:-1px}
+.ls-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);letter-spacing:1.5px;text-align:center;margin-top:-4px}
+.ls-ring{width:44px;height:44px;position:relative;flex-shrink:0}
+.ls-ring::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--b2)}
+.ls-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:var(--blue);animation:sp .85s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ls-steps{width:100%;max-width:300px;display:flex;flex-direction:column;gap:4px}
+.ls-step{font-family:'JetBrains Mono',monospace;font-size:8px;text-align:center;padding:2px 0}
+.ls-step.done{color:var(--green)}
+.ls-step.active{color:var(--blue)}
+.ls-step.pending{color:var(--t3)}
+.ls-bar{width:280px;height:2px;background:var(--b2);border-radius:1px;overflow:hidden}
+.ls-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:1px;width:0;transition:width .3s}
+
+/* ─── APP SHELL ─── */
+#app{display:none;padding-bottom:60px}
+
+/* ─── HEADER ─── */
+.hdr{background:rgba(5,8,16,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);padding:10px 13px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:8px}
+.hdr-ico{font-size:16px;flex-shrink:0}
+.hdr-t{font-size:12px;font-weight:700;letter-spacing:.3px}
+.hdr-s{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1px;margin-top:1px}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:6px}
+.hdr-amt{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--gold)}
+.hdr-edit{background:var(--b1);border:1px solid var(--b2);border-radius:6px;padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--cyan);cursor:pointer}
+
+/* ─── YOUR PORTFOLIO SECTION ─── */
+.port-wrap{margin:10px 12px 0;background:var(--sf);border:1px solid var(--b2);border-radius:14px;overflow:hidden}
+.port-hdr{background:linear-gradient(135deg,rgba(79,142,247,.15),rgba(0,200,224,.08));border-bottom:1px solid var(--b2);padding:10px 13px;display:flex;justify-content:space-between;align-items:center}
+.port-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--blue);text-transform:uppercase}
+.port-total{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600}
+.port-items{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
+.port-item{background:var(--bg2);border-radius:9px;padding:9px 11px;border:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center}
+.port-item.port-loss{border-color:rgba(255,71,87,.2);background:rgba(255,71,87,.04)}
+.port-item.port-gain{border-color:rgba(0,212,170,.2);background:rgba(0,212,170,.04)}
+.pi-left{}
+.pi-tk{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.pi-nm{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);margin-top:1px}
+.pi-avg{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);margin-top:3px}
+.pi-right{text-align:right;flex-shrink:0}
+.pi-curr{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700}
+.pi-pl{font-family:'JetBrains Mono',monospace;font-size:9px;margin-top:2px;font-weight:600}
+.pi-signal{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block}
+.pi-earn{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--amber);margin-top:2px}
+
+/* ─── EARNINGS ALERT ─── */
+.earn-alert{margin:10px 12px 0;border-radius:11px;padding:10px 13px;border:1px solid rgba(255,167,38,.3);background:rgba(255,167,38,.06)}
+.earn-alert-t{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--amber);text-transform:uppercase;margin-bottom:5px}
+.earn-alert-body{font-size:11px;color:var(--t2);line-height:1.7}
+
+/* ─── CONTAGION MAP ─── */
+.conta-wrap{margin:10px 12px 0;background:var(--sf);border:1px solid var(--b2);border-radius:14px;overflow:hidden}
+.conta-hdr{background:linear-gradient(135deg,rgba(255,107,53,.12),rgba(155,89,255,.08));border-bottom:1px solid var(--b2);padding:10px 13px}
+.conta-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--orange);text-transform:uppercase;margin-bottom:2px}
+.conta-sub{font-size:10px;color:var(--t2)}
+.conta-chains{padding:10px}
+.conta-chain{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--b1)}
+.conta-chain:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.conta-trigger{font-size:12px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.conta-flag{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border-radius:3px;font-weight:700}
+.conta-effects{display:flex;flex-direction:column;gap:3px}
+.conta-eff{display:flex;align-items:flex-start;gap:6px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 0}
+.conta-arrow{color:var(--t3);flex-shrink:0;margin-top:1px}
+.conta-stocks{font-weight:600;flex-shrink:0;min-width:90px}
+.conta-why{color:var(--t3);flex:1;line-height:1.5}
+.conta-adj{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0}
+
+/* ─── AI BANNER ─── */
+.ai-wrap{margin:10px 12px 0;background:var(--sf);border:1px solid rgba(155,89,255,.25);border-radius:14px;padding:11px 13px}
+.ai-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.ai-title{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--purple);text-transform:uppercase}
+.ai-status{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border-radius:8px}
+.ai-txt{font-size:10px;color:var(--t2);line-height:1.7}
+
+/* ─── MACRO STRIP ─── */
+.macro-wrap{padding:10px 12px;border-bottom:1px solid var(--b1)}
+.macro-hdr{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.macro-live{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 8px;border-radius:8px}
+.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.mc{background:var(--bg2);border-radius:8px;padding:7px 8px}
+.mc-l{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:.5px;margin-bottom:3px;text-transform:uppercase}
+.mc-v{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+.mc-s{font-family:'JetBrains Mono',monospace;font-size:7px;margin-top:2px}
+.macro-verdict{font-size:10px;color:var(--t2);line-height:1.65;background:var(--bg2);border-radius:8px;padding:8px 10px}
+
+/* ─── REGIME BAR ─── */
+.regime-bar{display:flex;align-items:center;gap:7px;padding:8px 13px;border-bottom:1px solid var(--b1);flex-wrap:wrap}
+.regime-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:lp 2s infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 0 currentColor}50%{box-shadow:0 0 0 5px transparent}}
+.regime-lbl{font-size:11px;font-weight:700}
+.regime-chip{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:9px}
+.regime-conf{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3)}
+
+/* ─── SECTION LABELS ─── */
+.sec-lbl{padding:12px 12px 7px;display:flex;align-items:center;justify-content:space-between}
+.sec-t{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--t2);text-transform:uppercase}
+.sec-r{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3)}
+
+/* ─── COUNTRY DIVIDER ─── */
+.cdiv{display:flex;align-items:center;gap:8px;padding:12px 12px 4px}
+.cdl{flex:1;height:1px;background:var(--b1)}
+.cdlb{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);letter-spacing:2px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.cflag{font-size:11px}
+
+/* ─── CARDS ─── */
+.cards{padding:0 12px;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--sf);border:1px solid var(--b2);border-radius:14px;overflow:hidden;opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s;position:relative}
+.card.show{opacity:1;transform:none}
+.ctb{height:2.5px}
+.cb{padding:12px 13px 14px}
+.rkg{position:absolute;top:6px;right:8px;font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;color:rgba(255,255,255,.025);line-height:1;pointer-events:none}
+.country-badge{position:absolute;top:10px;left:10px;font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border-radius:4px;letter-spacing:.5px;font-weight:700}
+
+/* card header */
+.ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px}
+.ctk{font-size:18px;font-weight:700;letter-spacing:-.4px;line-height:1}
+.cfn{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);margin-top:2px}
+.csc{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);margin-top:1px}
+.cbg{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+.cbdg{font-family:'JetBrains Mono',monospace;font-size:7px;padding:2px 6px;border-radius:4px}
+.cr{text-align:right;flex-shrink:0}
+.cras{font-size:20px;font-weight:700;line-height:1}
+.cras-l{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1px;margin-top:1px}
+.ccp{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);margin-top:4px}
+.cgross{font-family:'JetBrains Mono',monospace;font-size:9px;margin-top:1px;color:var(--amber)}
+.cnet{font-family:'JetBrains Mono',monospace;font-size:9px;margin-top:1px;color:var(--green)}
+
+/* currency overlay badge */
+.fx-badge{font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(0,200,224,.08);border:1px solid rgba(0,200,224,.2);color:var(--cyan);display:inline-flex;align-items:center;gap:4px;margin-top:4px}
+
+/* sentiment + val tags */
+.sentiment-tag{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 8px;border-radius:6px;margin-top:5px}
+.val-tag{font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 7px;border-radius:5px;display:inline-block;margin-top:3px}
+
+/* contagion impact on card */
+.conta-card{background:rgba(255,107,53,.05);border:1px solid rgba(255,107,53,.18);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.conta-card-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--orange);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.conta-card-row{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:8px}
+.conta-card-reason{color:var(--t2);flex:1}
+.conta-card-adj{font-weight:700;padding:1px 5px;border-radius:3px}
+
+/* price target */
+.ptb{border-radius:9px;padding:10px 11px;margin-bottom:9px;border:1px solid}
+.pt-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.pt-lbl{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-bottom:3px}
+.pt-tgt{font-size:20px;font-weight:700;letter-spacing:-.3px;line-height:1}
+.pt-up{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:2px}
+.pt-range{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);margin-top:2px}
+.pt-prob{font-size:26px;font-weight:700;line-height:1}
+.pt-pl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1px;margin-top:2px;text-align:right}
+.pt-bar{height:7px;background:rgba(0,0,0,.3);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.pt-bf{height:100%;border-radius:3px;width:0;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
+.pt-tfs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pt-tf{background:rgba(0,0,0,.2);border-radius:6px;padding:5px;text-align:center}
+.pt-tfd{font-family:'JetBrains Mono',monospace;font-size:7px;color:rgba(255,255,255,.3);margin-bottom:2px}
+.pt-tfp{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+
+/* kelly */
+.kelly-box{background:rgba(255,204,68,.05);border:1px solid rgba(255,204,68,.2);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.kelly-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--gold);letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
+.kelly-row{display:flex;justify-content:space-between;align-items:flex-start}
+.kelly-pct{font-size:18px;font-weight:700;color:var(--gold)}
+.kelly-amt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:1px}
+.kelly-note{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);text-align:right;max-width:140px;line-height:1.5}
+.kelly-bar{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;margin-top:6px}
+.kelly-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--amber));width:0;transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+
+/* stop loss */
+.sl-box{background:rgba(255,71,87,.05);border:1px solid rgba(255,71,87,.2);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.sl-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--red);letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
+.sl-row{display:flex;justify-content:space-between;align-items:center}
+.sl-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--red)}
+.sl-note{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-align:right}
+
+/* div box */
+.div-box{background:rgba(0,212,170,.04);border:1px solid rgba(0,212,170,.18);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.div-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--green);letter-spacing:1.5px;margin-bottom:4px;text-transform:uppercase}
+.div-row{display:flex;justify-content:space-between;align-items:center}
+.div-yield{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--green)}
+.div-note{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);text-align:right}
+
+/* regime transition */
+.rt-wrap{background:rgba(155,89,255,.05);border:1px solid rgba(155,89,255,.15);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.rt-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--purple);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.rt-timeline{display:flex;flex-direction:column;gap:4px}
+.rt-row{display:flex;align-items:center;gap:6px}
+.rt-period{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);width:28px;flex-shrink:0}
+.rt-bars{flex:1;display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px}
+.rt-seg{height:100%;border-radius:2px;transition:width .8s}
+.rt-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+.rt-leg-item{display:flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3)}
+.rt-leg-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rt-txt{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2);margin-top:4px;line-height:1.6}
+
+/* adjustments box */
+.adj-box{background:rgba(79,142,247,.05);border:1px solid rgba(79,142,247,.14);border-radius:8px;padding:8px 10px;margin-bottom:9px}
+.adj-t{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.adj-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(79,142,247,.07)}
+.adj-row:last-child{border-bottom:none}
+.adj-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2)}
+.adj-v{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600}
+.adj-note{font-size:10px;color:var(--t2);line-height:1.55;margin-top:5px}
+
+/* 4 metrics */
+.m4{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:9px}
+.m4b{background:var(--bg2);border-radius:6px;padding:6px}
+.m4l{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);margin-bottom:2px}
+.m4v{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600}
+
+/* return bar */
+.bsec{margin-bottom:9px}
+.bhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.bll{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:1px;text-transform:uppercase}
+.btx{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t2)}
+.btr{height:7px;background:var(--b1);border-radius:3px;overflow:hidden;position:relative;margin-bottom:3px}
+.bg2e{position:absolute;height:100%;border-radius:3px;left:0;top:0;opacity:.18}
+.bn{position:absolute;height:100%;border-radius:3px;left:0;top:0;width:0;transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+.bnt{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3)}
+
+/* proj table */
+.proj-sec{margin-bottom:9px}
+.proj-lbl{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-bottom:5px}
+.proj-tbl{border-radius:8px;overflow:hidden;border:1px solid var(--b2)}
+.proj-hrow{display:grid;background:var(--bg2);padding:5px 7px;gap:3px}
+.proj-hcell{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);text-align:center;letter-spacing:.5px}
+.proj-hcell:first-child{text-align:left}
+.proj-drow{display:grid;padding:6px 7px;gap:3px;border-top:1px solid var(--b1)}
+.proj-sc{font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700}
+.proj-cell{text-align:center}
+.proj-amt{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600}
+.proj-pct{font-family:'JetBrains Mono',monospace;font-size:7px;margin-top:1px}
+.proj-evrow{display:grid;padding:6px 7px;gap:3px;border-top:1px solid rgba(79,142,247,.2);background:rgba(79,142,247,.04)}
+
+/* RAS bar */
+.rasw{margin-bottom:5px}
+.rash{display:flex;justify-content:space-between;margin-bottom:4px}
+.rasl{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase}
+.rasv{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--amber)}
+.rast{height:5px;background:var(--b1);border-radius:3px;overflow:hidden}
+.rasf{height:100%;border-radius:3px;width:0;transition:width 1.4s cubic-bezier(.16,1,.3,1)}
+.cdsc{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);line-height:1.7;margin-top:4px}
+
+/* coherence */
+.coher-wrap{margin:10px 12px 0;background:var(--sf);border:1px solid rgba(0,212,170,.2);border-radius:14px;padding:12px 13px}
+.coher-t{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--green);text-transform:uppercase;margin-bottom:7px}
+.coher-txt{font-size:11px;color:var(--t2);line-height:1.7}
+
+/* scenario */
+.scen-wrap{margin:14px 12px 0;background:var(--sf);border:1px solid var(--b2);border-radius:14px;padding:12px 13px}
+.scen-t{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1.5px;color:var(--t2);text-transform:uppercase;margin-bottom:8px}
+.scen-inp-row{display:flex;gap:8px;margin-bottom:8px}
+.scen-inp{flex:1;background:var(--bg2);border:1px solid var(--b2);border-radius:8px;padding:9px 11px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);outline:none}
+.scen-inp::placeholder{color:var(--t3)}
+.scen-btn{background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border:none;border-radius:8px;padding:9px 14px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.scen-loading{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--purple);text-align:center;padding:10px;display:none}
+.scen-result{font-size:10px;color:var(--t2);line-height:1.7;background:var(--bg2);border-radius:8px;padding:9px 10px;display:none}
+
+/* summary */
+.sumbox{margin:14px 12px 0;background:var(--sf);border:1px solid var(--b2);border-radius:14px;padding:12px}
+.sumt{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--t2);text-transform:uppercase;margin-bottom:9px}
+.sumg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.smb{background:var(--bg2);border-radius:9px;padding:9px;text-align:center}
+.sml{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--t3);letter-spacing:.8px;margin-bottom:4px}
+.smv{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+
+/* disclaimer */
+.disc{margin:13px 12px 0;padding:10px 11px;background:rgba(255,167,38,.04);border:1px solid rgba(255,167,38,.1);border-left:3px solid var(--amber);border-radius:0 9px 9px 0;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--t3);line-height:1.9}
+</style>
+</head>
+<body>
+
+<!-- INPUT -->
+<div id="ip" class="ip">
+  <div class="ip-badge"><div class="ip-badge-dot"></div><div class="ip-badge-txt">India + US · Live Prices · AI Intelligence</div></div>
+  <div class="ip-h">Investment Radar Pro</div>
+  <div class="ip-s">59 instruments · Alpha Vantage · Announcement Contagion</div>
+  <div class="ip-box" style="max-width:340px;width:100%">
+    <div class="ip-lbl">Amount to invest today</div>
+    <div class="ip-row">
+      <div class="ip-sym">Rs</div>
+      <input class="ip-inp" id="aI" type="number" inputmode="numeric" placeholder="100000" oninput="onA()">
+    </div>
+    <div class="ip-fmt" id="aF"></div>
+  </div>
+  <div class="presets" style="max-width:340px;width:100%">
+    <div class="preset" onclick="setA(50000)">50K</div>
+    <div class="preset sel" onclick="setA(100000)">1L</div>
+    <div class="preset" onclick="setA(200000)">2L</div>
+    <div class="preset" onclick="setA(500000)">5L</div>
+    <div class="preset" onclick="setA(1000000)">10L</div>
+  </div>
+  <div class="opts" style="max-width:340px;width:100%">
+    <div class="opt">
+      <div class="opt-l">Hold Period</div>
+      <select class="opt-s" id="hS">
+        <option value="1">1 Month</option>
+        <option value="3">3 Months</option>
+        <option value="6" selected>6 Months</option>
+        <option value="12">12 Months</option>
+        <option value="18">18 Months</option>
+        <option value="24">2 Years</option>
+        <option value="36">3 Years</option>
+        <option value="60">5 Years</option>
+      </select>
+    </div>
+    <div class="opt">
+      <div class="opt-l">Risk Profile</div>
+      <select class="opt-s" id="rS">
+        <option value="conservative">Conservative</option>
+        <option value="moderate" selected>Moderate</option>
+        <option value="aggressive">Aggressive</option>
+      </select>
+    </div>
+  </div>
+  <button class="go" style="max-width:340px;width:100%" onclick="launch()">Run Full Analysis</button>
+  <div class="ip-note">Your US portfolio tracked · Live Alpha Vantage prices<br>59 instruments scored · Contagion engine · 30% tax · Not advice</div>
+</div>
+
+<!-- LOADING -->
+<div class="ls" id="ls">
+  <div class="ls-logo">RS</div>
+  <div class="ls-amt" id="lA">--</div>
+  <div class="ls-sub">India + US Unified Analysis</div>
+  <div class="ls-ring"></div>
+  <div class="ls-steps" id="lSteps"></div>
+  <div class="ls-bar"><div class="ls-fill" id="lF"></div></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-ico">RS</div>
+    <div><div class="hdr-t">Investment Radar Pro</div><div class="hdr-s" id="hS2">--</div></div>
+    <div class="hdr-r"><div class="hdr-amt" id="hA">--</div><button class="hdr-edit" onclick="goBack()">Edit</button></div>
+  </div>
+
+  <!-- YOUR US PORTFOLIO -->
+  <div class="port-wrap">
+    <div class="port-hdr">
+      <div class="port-title">Your US Portfolio (IND Money)</div>
+      <div class="port-total" id="portTotal">--</div>
+    </div>
+    <div class="port-items" id="portItems"></div>
+  </div>
+
+  <!-- EARNINGS ALERT -->
+  <div class="earn-alert" id="earnAlert" style="display:none">
+    <div class="earn-alert-t">Upcoming Earnings Alert</div>
+    <div class="earn-alert-body" id="earnAlertBody"></div>
+  </div>
+
+  <!-- CONTAGION MAP -->
+  <div class="conta-wrap">
+    <div class="conta-hdr">
+      <div class="conta-title">Announcement Contagion Map</div>
+      <div class="conta-sub" id="contaSub">Active triggers and their ripple effects across your portfolio</div>
+    </div>
+    <div class="conta-chains" id="contaChains"></div>
+  </div>
+
+  <!-- AI INTELLIGENCE -->
+  <div class="ai-wrap" id="aiWrap">
+    <div class="ai-hdr">
+      <div class="ai-title">AI Intelligence Layer</div>
+      <div class="ai-status" id="aiStatus">Loading...</div>
+    </div>
+    <div class="ai-txt" id="aiTxt">Searching live news across 59 instruments...</div>
+  </div>
+
+  <!-- MACRO STRIP -->
+  <div class="macro-wrap">
+    <div class="macro-hdr">Live Macro Signals <span class="macro-live" id="msLive">--</span></div>
+    <div class="macro-grid" id="msGrid"></div>
+    <div class="macro-verdict" id="msVerdict"></div>
+  </div>
+
+  <!-- REGIME BAR -->
+  <div class="regime-bar" id="regBar">
+    <div class="regime-dot" id="regDot"></div>
+    <div class="regime-lbl" id="regLbl">--</div>
+    <div id="regExtra"></div>
+    <div class="regime-conf" id="regConf">--</div>
+  </div>
+
+  <!-- RANKINGS -->
+  <div class="sec-lbl"><div class="sec-t" id="secT">Top Picks</div><div class="sec-r" id="secR">--</div></div>
+  <div class="cards" id="cList"></div>
+
+  <!-- COHERENCE -->
+  <div class="coher-wrap" id="coherWrap" style="display:none">
+    <div class="coher-t">AI Portfolio Coherence Check</div>
+    <div class="coher-txt" id="coherTxt"></div>
+  </div>
+
+  <!-- SCENARIO -->
+  <div class="scen-wrap">
+    <div class="scen-t">AI Macro Scenario Simulator</div>
+    <div class="scen-inp-row">
+      <input class="scen-inp" id="scenInp" placeholder="e.g. What if oil hits $130?" type="text">
+      <button class="scen-btn" onclick="runScenario()">Simulate</button>
+    </div>
+    <div class="scen-loading" id="scenLoading">AI analysing your scenario...</div>
+    <div class="scen-result" id="scenResult"></div>
+  </div>
+
+  <div class="sumbox" id="sumB"></div>
+  <div class="disc">Equity India STCG 20% under 1yr, LTCG 12.5% over 1yr. US stocks taxed at 30% slab regardless of hold period — no LTCG benefit. Arbitrage fund equity tax treatment. Bitcoin 30% flat VDA. IND Money ~1.5% round-trip friction included in US returns. Currency overlay uses live USD/INR. LRS TCS 20% above Rs 7L/yr remittance (refundable in ITR). US prices via Alpha Vantage (may be 15-min delayed on free tier). Not SEBI-registered advice.</div>
+</div>
+
+<script>
+'use strict';
+
+// ── ALPHA VANTAGE KEY ─────────────────────────────────────────
+var AV_KEY = 'KB3U5RNE551GUQUR';
+var NSE_URL = 'https://investment-radar-nse.onrender.com';
+
+// ── NSE LIVE DATA STATE ────────────────────────────────────────
+var NSE = {
+  fii_net:   -2714,   // live default from today
+  fii_buy:   12798,
+  fii_sell:  15513,
+  dii_net:   3253,
+  fii_trend: [],
+  vix:       null,
+  nifty:     null,
+  results:   [],
+  bulk:      [],
+  gainers:   [],
+  losers:    [],
+  loaded:    false,
+  source:    'fallback',
+};
+
+async function fetchNSEBackend() {
+  var _nseSyms = IN_U.filter(function(s){return s.nse;}).map(function(s){return s.nse;}).join(',');
+  try {
+    // Fetch all NSE data in parallel — using index access (safer on Android)
+    var nseResults = await Promise.all([
+      fetch(NSE_URL+'/fii',     {signal:AbortSignal.timeout(8000)}).then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch(NSE_URL+'/indices', {signal:AbortSignal.timeout(8000)}).then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch(NSE_URL+'/results', {signal:AbortSignal.timeout(8000)}).then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch(NSE_URL+'/gainers', {signal:AbortSignal.timeout(8000)}).then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch(NSE_URL+'/quotes?s='+_nseSyms, {signal:AbortSignal.timeout(15000)}).then(function(r){return r.json();}).catch(function(){return null;}),
+    ]);
+    var fiiR    = nseResults[0];
+    var idxR    = nseResults[1];
+    var resR    = nseResults[2];
+    var gainR   = nseResults[3];
+    var pricesR = nseResults[4];
+
+    // FII/DII flows
+    if (fiiR && fiiR.ok && fiiR.data) {
+      NSE.fii_net   = fiiR.data.fii_net   || NSE.fii_net;
+      NSE.fii_buy   = fiiR.data.fii_buy   || NSE.fii_buy;
+      NSE.fii_sell  = fiiR.data.fii_sell  || NSE.fii_sell;
+      NSE.dii_net   = fiiR.data.dii_net   || NSE.dii_net;
+      NSE.fii_trend = fiiR.data.trend     || [];
+      NSE.source    = 'NSE live';
+    }
+
+    // Indices — update LIVE with NSE data (more reliable than Yahoo)
+    if (idxR && idxR.ok && idxR.indices) {
+      idxR.indices.forEach(function(idx) {
+        if (idx.name === 'INDIA VIX'  && idx.last) { LIVE.vix   = idx.last; LIVE.fetched++; }
+        if (idx.name === 'NIFTY 50'   && idx.last) { LIVE.nifty = idx.last; LIVE.fetched++; }
+        if (idx.last) NSE[idx.name] = idx;
+      });
+    }
+
+    // Results calendar
+    if (resR && resR.ok) {
+      NSE.results = resR.results   || [];
+      NSE.ourResults = resR.ourTrackedResults || [];
+    }
+
+    // Gainers / losers
+    if (gainR && gainR.ok) {
+      NSE.gainers = gainR.gainers || [];
+      NSE.losers  = gainR.losers  || [];
+    }
+    // Fetch market news separately (non-critical, after main data)
+    try {
+      var mnR = await fetch(NSE_URL+'/marketnews',{signal:AbortSignal.timeout(8000)}).then(r=>r.json()).catch(()=>null);
+      if (mnR && mnR.ok) NSE.marketNews = mnR.items || [];
+    } catch(e) {}
+
+    // Live Indian stock prices
+    if (pricesR && pricesR.ok && pricesR.prices) {
+      NSE.prices = pricesR.prices;
+      // Update cp values in IN_U with live prices
+      var liveCount = 0;
+      IN_U.forEach(function(inst) {
+        if (inst.nse && pricesR.prices[inst.nse]) {
+          inst.cp = pricesR.prices[inst.nse];
+          liveCount++;
+        }
+      });
+      console.log('Updated', liveCount, 'Indian stock prices from NSE');
+    }
+
+    NSE.loaded = true;
+    console.log('NSE backend loaded. FII net:', NSE.fii_net, 'Cr | Source:', NSE.source);
+  } catch(e) {
+    console.log('NSE backend error:', e.message);
+  }
+}
+
+// ── PRNG + HELPERS ────────────────────────────────────────────
+function h2r(h){if(!h||h[0]!=='#')return'100,100,100';return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16);}
+function fmtI(n){return'Rs '+Math.round(n).toLocaleString('en-IN');}
+function fmtK(n){n=Math.round(n);if(n>=10000000)return'Rs '+(n/10000000).toFixed(2)+'Cr';if(n>=100000)return'Rs '+(n/100000).toFixed(2)+'L';if(n>=1000)return'Rs '+(n/1000).toFixed(1)+'K';return'Rs '+n;}
+function fmtUSD(n){if(n>1000)return'$'+(n/1000).toFixed(2)+'K';return'$'+parseFloat(n).toFixed(2);}
+function sgn(v){var f=parseFloat(v);return(f>=0?'+':'')+f.toFixed(1);}
+function gC(v){return parseFloat(v)>=0?'#00d4aa':'#ff4757';}
+function rL(s){return s>.38?'V.HIGH':s>.28?'HIGH':s>.14?'MED':s>.04?'LOW':'MIN';}
+function rC(s){return s>.38?'#ff4757':s>.28?'#ff6b35':s>.14?'#ffa726':s>.04?'#00c8e0':'#00d4aa';}
+function pC(p){return p>=70?'#00d4aa':p>=55?'#00c8e0':p>=40?'#ffa726':'#ff4757';}
+function sig(x,k){return 1/(1+Math.exp(-(k||2.5)*x));}
+var BARS=['linear-gradient(90deg,#4f8ef7,#00c8e0)','linear-gradient(90deg,#00d4aa,#00c8e0)','linear-gradient(90deg,#ffa726,#ff4757)','linear-gradient(90deg,#9b59ff,#4f8ef7)','linear-gradient(90deg,#00c8e0,#00d4aa)','linear-gradient(90deg,#ff6b35,#ffa726)','linear-gradient(90deg,#34d399,#00c8e0)','linear-gradient(90deg,#f472b6,#9b59ff)','linear-gradient(90deg,#ffcc44,#ffa726)','linear-gradient(90deg,#22d3ee,#4f8ef7)'];
+var RNAMES=['BULL','SOFT_BULL','SIDEWAYS','SOFT_BEAR','BEAR'];
+var RKEYS=['B','SB','SW','SBR','BR'];
+var RCOLS={BULL:'#00d4aa',SOFT_BULL:'#00c8e0',SIDEWAYS:'#ffa726',SOFT_BEAR:'#ff6b35',BEAR:'#ff4757'};
+var RCFG={BULL:{l:'BULL MARKET',c:'#00d4aa'},SOFT_BULL:{l:'SOFT BULL',c:'#00c8e0'},SIDEWAYS:{l:'SIDEWAYS',c:'#ffa726'},SOFT_BEAR:{l:'SOFT BEAR',c:'#ff6b35'},BEAR:{l:'BEAR MARKET',c:'#ff4757'}};
+
+// ── LIVE PRICE STATE ──────────────────────────────────────────
+var LIVE={usdInr:92.35,vix:17.8,nifty:23778,brent:101,btcInr:6800000,gold:3020,fetched:0};
+var US_PRICES={
+  NVDA:115,MSFT:408,META:644,AMZN:213,GOOGL:298,
+  AVGO:330,ARM:105,PLTR:82,ORCL:153,CRM:280,
+  DDOG:129,NET:225,NBIS:118,CEG:317,VRT:85,
+  VOO:520,QQQ:599,SOXX:210,VTI:326,
+  SNOW:135
+};
+var AV_FETCHED=0;
+
+// ── YOUR EXISTING PORTFOLIO ───────────────────────────────────
+var YOUR_PORTFOLIO=[
+  {tk:'DDOG',nm:'Datadog',qty:3.289706,avg:127.57,earnDate:'Apr 30, 2026',earnDays:42},
+  {tk:'NET', nm:'Cloudflare',qty:1.066992,avg:208.62,earnDate:'Apr 30, 2026',earnDays:42},
+  {tk:'CEG', nm:'Constellation Energy',qty:0.714253,avg:310.43,earnDate:'~May 5, 2026',earnDays:47},
+  {tk:'NBIS',nm:'Nebius Group',qty:1.496794,avg:126.02,earnDate:'TBD',earnDays:null},
+  {tk:'VTI', nm:'US Total Market ETF',qty:0.001761,avg:337.85,earnDate:null,earnDays:null},
+];
+
+// ── FETCH LIVE PRICES ─────────────────────────────────────────
+function fetchLiveIndia(){
+  var syms={usdInr:'INR=X',vix:'%5EINDIAVIX',nifty:'%5ENSEI',brent:'BZ%3DF',btcInr:'BTC-INR',gold:'GC%3DF'};
+  Object.keys(syms).forEach(function(k){
+    var url='https://api.allorigins.win/raw?url='+encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/'+syms[k]+'?interval=1d&range=1d');
+    fetch(url,{signal:AbortSignal.timeout(7000)}).then(function(r){return r.json();}).then(function(d){
+      var p=d&&d.chart&&d.chart.result&&d.chart.result[0]&&d.chart.result[0].meta&&d.chart.result[0].meta.regularMarketPrice;
+      if(p){LIVE[k]=p;LIVE.fetched++;}
+    }).catch(function(){});
+  });
+}
+
+function fetchUSPrices(){
+  // Alpha Vantage BATCH quotes - fetch all US symbols in batches
+  var symbols=Object.keys(US_PRICES).join(',');
+  var url='https://www.alphavantage.co/query?function=REALTIME_BULK_QUOTES&symbol='+symbols+'&apikey='+AV_KEY;
+  return fetch(url,{signal:AbortSignal.timeout(12000)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d&&d['data']&&Array.isArray(d['data'])){
+        d['data'].forEach(function(q){
+          var sym=q['symbol'];
+          var price=parseFloat(q['close']||q['price']||0);
+          if(sym&&price>0&&US_PRICES.hasOwnProperty(sym)){
+            US_PRICES[sym]=price;
+            AV_FETCHED++;
+          }
+        });
+      }
+      // Fallback: try GLOBAL_QUOTE for individual symbols if batch fails
+      if(AV_FETCHED===0){
+        fetchUSIndividual(['NVDA','DDOG','NET','CEG','NBIS']);
+      }
+    })
+    .catch(function(){
+      fetchUSIndividual(['NVDA','DDOG','NET','CEG','NBIS']);
+    });
+}
+
+function fetchUSIndividual(syms){
+  syms.forEach(function(sym){
+    var url='https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol='+sym+'&apikey='+AV_KEY;
+    fetch(url,{signal:AbortSignal.timeout(8000)}).then(function(r){return r.json();}).then(function(d){
+      var q=d&&d['Global Quote'];
+      var price=q&&parseFloat(q['05. price']||0);
+      if(price>0){US_PRICES[sym]=price;AV_FETCHED++;}
+    }).catch(function(){});
+  });
+}
+
+// ── CLAUDE API ────────────────────────────────────────────────
+var AI_RESULT=null;
+
+async function callClaude(prompt,maxTok){
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:maxTok||1000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data=await r.json();
+    var text='';
+    if(data.content)data.content.forEach(function(b){if(b.type==='text')text+=b.text;});
+    return text.trim();
+  }catch(e){return null;}
+}
+
+// ── TOP-LEVEL CONSTANTS (must be outside all functions) ────────
+var TIER1_STOCKS = [
+  // Your US holdings (always scan)
+  'NVDA','MSFT','META','DDOG','NET','CEG','NBIS',
+  // Top India equity
+  'HAL','BEL','TCS','ICICI BANK','ONGC','RELIANCE','BHARTI ARTL','DIXON','PERSISTENT','HDFC BANK',
+  // Instruments and macro (CRITICAL — often missed)
+  'GOLD ETF','SILVER ETF','RBI G-SEC','EMBASSY REIT',
+  // Central bank and macro news (most important signals)
+  'RBI India rate','Federal Reserve rate','India CPI inflation',
+  'India GDP growth','FII India flows','India VIX market',
+];
+
+var STOCK_NEWS = {};
+
+function getTier2Stocks(macro) {
+  var extra = [];
+  if (parseFloat(macro.brent) > 95) extra.push('IOC','GAIL','COAL INDIA','DEEPAK NIT','NHPC','ULTRATECH','INTERGLOBE');
+  if (macro.geo) extra.push('MTAR TECH','GARDEN REACH','DATA PATTERNS','COCHIN SHIP','BHARAT FORGE','PARAS DEFENCE');
+  if (macro.rbi === 'CUTTING') extra.push('DLF','APTUS VALUE','EMBASSY REIT','POWER GRID','INDUSIND BK','SHRIRAM FIN','PRESTIGE');
+  if (parseFloat(macro.usdInr) > 88) extra.push('DIVISLAB','CIPLA','LUPIN','BAJAJ AUTO','CYIENT','LTIMINDTREE');
+  return extra.filter(function(v,i,a){return a.indexOf(v)===i;});
+}
+
+async function fetchStockNews(symbols) {
+  if (!NSE_URL || !symbols.length) return;
+  var nameMap = {
+    'GOLD ETF':'gold ETF India','SILVER ETF':'silver ETF India',
+    'HAL':'Hindustan Aeronautics HAL','BEL':'Bharat Electronics BEL',
+    'DDOG':'Datadog stock','NET':'Cloudflare stock',
+    'NBIS':'Nebius Group stock','CEG':'Constellation Energy stock',
+    'BHARTI ARTL':'Bharti Airtel','COCHIN SHIP':'Cochin Shipyard',
+    'INDUSIND BK':'IndusInd Bank','BANK OF BARO':'Bank of Baroda',
+    'SHRIRAM FIN':'Shriram Finance','BHARAT FORGE':'Bharat Forge',
+    'MTAR TECH':'MTAR Technologies','DATA PATTERNS':'Data Patterns India',
+    'GARDEN REACH':'Garden Reach Shipbuilders','PARAS DEFENCE':'Paras Defence',
+    'EICHER MOTOR':'Eicher Motors','HERO MOTOCO':'Hero MotoCorp',
+    'BAJAJ AUTO':'Bajaj Auto','TVS MOTOR':'TVS Motor',
+    'VARUN BEV':'Varun Beverages','NAVIN FLUOR':'Navin Fluorine',
+    'AARTI INDS':'Aarti Industries','CLEAN SCIENCE':'Clean Science Technology',
+    'GODREJ PROP':'Godrej Properties','OBEROI REAL':'Oberoi Realty',
+    'ADANI PORTS':'Adani Ports','COAL INDIA':'Coal India',
+    'INDUS TOWERS':'Indus Towers','VODAFONE ID':'Vodafone Idea',
+    'CONTAINER COR':'Container Corporation CONCOR','BLUE DART':'Blue Dart Express',
+    'TATA STEEL':'Tata Steel','JSW STEEL':'JSW Steel',
+    'INTERGLOBE':'IndiGo airline','INDIAN HOTELS':'Indian Hotels Taj',
+    'HDFC LIFE':'HDFC Life Insurance','SBI LIFE':'SBI Life Insurance',
+    'BAJAJ FINSERV':'Bajaj Finserv','L AND T':'Larsen Toubro',
+    'LTIMINDTREE':'LTIMindtree','M&M FIN':'M&M Financial Services',
+    'KPIT TECH':'KPIT Technologies','RBI G-SEC':'India government bond',
+    'ARB FUND':'arbitrage mutual fund India','CORP BOND MF':'corporate bond fund India',
+    'HDFC LIQ':'HDFC liquid fund','EMBASSY REIT':'Embassy Office REIT',
+    'FEDERAL BK':'Federal Bank India','APTUS VALUE':'Aptus Value Housing',
+    'ICICI BANK':'ICICI Bank','HDFC BANK':'HDFC Bank','BAJAJ FIN':'Bajaj Finance',
+    'DEEPAK NIT':'Deepak Nitrite','PI INDS':'PI Industries',
+    'POWER GRID':'Power Grid Corporation','DIVISLAB':'Divis Laboratories',
+    'GOLD ETF':'gold price India ETF today',
+    'SILVER ETF':'silver price India ETF today',
+    'RBI G-SEC':'India government bond yield today',
+    'EMBASSY REIT':'Embassy Office Parks REIT India',
+    'RBI India rate':'RBI India interest rate decision 2026',
+    'Federal Reserve rate':'US Federal Reserve interest rate decision 2026',
+    'India CPI inflation':'India CPI inflation data 2026',
+    'India GDP growth':'India GDP growth data 2026',
+    'FII India flows':'FII DII India stock market flows today',
+    'India VIX market':'India VIX Nifty market today',
+  };
+  var batches = [];
+  for (var i = 0; i < symbols.length; i += 8) batches.push(symbols.slice(i, i+8));
+  for (var b = 0; b < batches.length; b++) {
+    var batch = batches[b];
+    var searchTerms = batch.map(function(s){ return nameMap[s] || s; });
+    try {
+      var url = NSE_URL + '/news?s=' + encodeURIComponent(searchTerms.join(','));
+      var r = await fetch(url, {signal: AbortSignal.timeout(12000)}).then(function(res){return res.json();}).catch(function(){return null;});
+      if (r && r.ok && r.news) {
+        // Map results back to display names by matching any key that has data
+        var allKeys = Object.keys(r.news);
+        batch.forEach(function(displayName, i2) {
+          var term = searchTerms[i2];
+          // Try exact term match first, then any key containing the stock name
+          var items = r.news[term] || [];
+          if (!items.length) {
+            // Find key by index — backend returns in same order as ?s= param
+            var key = allKeys[i2];
+            if (key) items = r.news[key] || [];
+          }
+          if (items.length > 0) STOCK_NEWS[displayName] = items;
+        });
+      }
+    } catch(e) { console.log('News batch error:', e.message); }
+    if (b < batches.length - 1) await new Promise(function(r2){setTimeout(r2, 300);});
+  }
+  console.log('Stock news loaded for:', Object.keys(STOCK_NEWS).length, 'stocks');
+}
+
+async function fetchAIIntelligence(macro){
+  var tier2 = getTier2Stocks(macro);
+  // Always add macro/central bank news queries to AI scan
+  var macroQueries = [
+    'RBI India rate','Federal Reserve rate','India CPI inflation','India GDP growth'
+  ];
+  var allTier = TIER1_STOCKS.concat(tier2).slice(0,20);
+  // Central bank status for AI prompt — critical context
+  var cbStatus = 'RBI PAUSED at 5.25% (not cutting — oil risk). Fed HELD 3.5-3.75% on Mar 18 2026 (next cut Sep earliest, only 1 cut in 2026). ECB HELD Mar 18. BoE HELD. ALL MAJOR CENTRAL BANKS HOLDING = global liquidity tight = FII sells India.';
+  var cond='USD/INR '+macro.usdInr+', Brent $'+macro.brent+', VIX '+macro.vix+
+    ', Nifty '+macro.nifty+', '+cbStatus+
+    '%, FII net '+Math.round(NSE.fii_net)+' Cr today, Iran-US war active. Nvidia GTC 2026 — $1T Blackwell orders.';
+  var portStr='User holds: DDOG avg $127.57, NET avg $208.62, CEG avg $310.43, NBIS avg $126.02.';
+  var stockList = allTier.slice(0,16).map(function(s){return '"'+s+'":{"score":0,"reason":"","event":null}';}).join(',');
+  var prompt='Indian investor with US stocks via IND Money. '+portStr+' Current: '+cond+
+    '\n\nSearch news for each stock. Return ONLY valid JSON:\n'+
+    '{"sentiment":{'+stockList+'},'+
+    '"triggers":[{"name":"","severity":0,"note":""}],'+
+    '"dominoes":[{"trigger":"","chain":""}],'+
+    '"nbis_signal":{"action":"HOLD","reason":""},'+
+    '"coherence":""}'+
+    '\nRules: score -3 to +3. event=major news in 30 days or null. triggers severity 1-5. coherence=2 sentences.';
+  var result = await callClaude(prompt, 2000);
+  if(!result) return null;
+  try { var m = result.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); } catch(e) {}
+  return null;
+}
+
+// ── REGIME TRANSITION MATRIX ──────────────────────────────────
+var RT={BULL:[.45,.25,.15,.10,.05],SOFT_BULL:[.25,.30,.25,.15,.05],SIDEWAYS:[.15,.25,.30,.20,.10],SOFT_BEAR:[.10,.15,.25,.30,.20],BEAR:[.05,.15,.25,.30,.25]};
+
+function blendedReturn(inst,startReg,holdM,adjMap){
+  var dist={BULL:0,SOFT_BULL:0,SIDEWAYS:0,SOFT_BEAR:0,BEAR:0};
+  dist[startReg]=1.0;
+  var steps=Math.max(1,Math.round(holdM/6));
+  var stepSize=holdM/steps;
+  var totalRet=0;
+  var snapshots=[];
+  for(var step=0;step<steps;step++){
+    var stepRet=0;
+    RNAMES.forEach(function(reg,ri){
+      var p=dist[reg]||0;if(p<0.001)return;
+      var baseR=(inst.bR[RKEYS[ri]]||0)+(adjMap[inst.rc]||0);
+      var divNet=(inst.dv||0)*0.70;
+      var tm=inst.tM?inst.tM.l||0.875:0.875;
+      var net=tm*baseR+divNet;
+      stepRet+=p*net;
+    });
+    totalRet+=stepRet*(stepSize/12);
+    snapshots.push({month:Math.round((step+1)*stepSize),dist:JSON.parse(JSON.stringify(dist))});
+    if(step<steps-1){
+      var newD={BULL:0,SOFT_BULL:0,SIDEWAYS:0,SOFT_BEAR:0,BEAR:0};
+      RNAMES.forEach(function(fromR,ri){var fp=dist[fromR]||0;if(fp<0.001)return;RT[fromR].forEach(function(tp,ti){newD[RNAMES[ti]]=(newD[RNAMES[ti]]||0)+fp*tp;});});
+      dist=newD;
+    }
+  }
+  var bullProb=(dist.BULL||0)+(dist.SOFT_BULL||0);
+  var wSig=0;RNAMES.forEach(function(r,ri){wSig+=(dist[r]||0)*(inst.sg?inst.sg[RKEYS[ri]]||0.2:0.2);});
+  return{annNet:totalRet/(holdM/12)||0,holdNet:totalRet,finalDist:dist,bullProb:bullProb,wSig:wSig||0.2,snapshots:snapshots};
+}
+
+// ── ANNOUNCEMENT CONTAGION ENGINE ─────────────────────────────
+// Maps: which announcements are currently active and what they move
+var CONTAGION_TRIGGERS=[
+  {
+    name:'Nvidia GTC 2026 — $1T Blackwell Orders',
+    active:true,
+    flag:'LIVE',flagColor:'#00d4aa',
+    headColor:'#00d4aa',
+    effects:[
+      {stocks:'NVDA',why:'Direct — Blackwell chip demand confirmed through 2027',adj:'+VERY HIGH',adjC:'#00d4aa'},
+      {stocks:'NBIS',why:'GPU cloud rental demand surge — your holding',adj:'+HIGH',adjC:'#00d4aa'},
+      {stocks:'CEG',why:'Nvidia data centres need nuclear power — your holding',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'DDOG',why:'More AI infra = more monitoring revenue — your holding',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'NET',why:'More AI traffic at edge — your holding',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'AVGO',why:'Networking chips for Blackwell clusters',adj:'+HIGH',adjC:'#00d4aa'},
+      {stocks:'Dixon / Kaynes (India)',why:'AI edge device EMS manufacturing — China+1',adj:'+LOW',adjC:'#4f8ef7'},
+      {stocks:'Polycab (India)',why:'Data centre cabling demand rises',adj:'+LOW',adjC:'#4f8ef7'},
+    ]
+  },
+  {
+    name:'Iran-US War + Hormuz Closure Risk',
+    active:true,
+    flag:'ACTIVE',flagColor:'#ff4757',
+    headColor:'#ff4757',
+    effects:[
+      {stocks:'HAL / BEL / Cochin Ship (India)',why:'Defence orders accelerate directly — geopolitical',adj:'+VERY HIGH',adjC:'#00d4aa'},
+      {stocks:'Gold ETF (India)',why:'Geopolitical flight to safety — gold surges',adj:'+HIGH',adjC:'#00d4aa'},
+      {stocks:'ONGC (India)',why:'Oil $101 = direct revenue boost',adj:'+HIGH',adjC:'#00d4aa'},
+      {stocks:'CEG (US)',why:'Middle East options using nuclear — article in your feed',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'TCS/Infosys/Sun Pharma (India)',why:'Rupee at 92.35 = USD revenue boost',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'Deepak Nitrite / UltraTech (India)',why:'Oil = feedstock + energy cost — negative',adj:'-MED',adjC:'#ff4757'},
+      {stocks:'Maruti / Tata Motors (India)',why:'High oil deters vehicle purchases',adj:'-MED',adjC:'#ff4757'},
+    ]
+  },
+  {
+    name:'RBI Rate Cut Cycle (5.25%)',
+    active:true,
+    flag:'CUTTING',flagColor:'#00c8e0',
+    headColor:'#00c8e0',
+    effects:[
+      {stocks:'DLF / Aptus Value (India)',why:'Home loan EMI falls = real estate demand surge',adj:'+HIGH',adjC:'#00d4aa'},
+      {stocks:'Bajaj Finance / HDFC Bank (India)',why:'Cost of funds falls = NIM expansion',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'Embassy REIT / G-Sec (India)',why:'Cap rate compression, bond prices rise',adj:'+MED',adjC:'#ffa726'},
+      {stocks:'NBIS / DDOG (US)',why:'Rate cuts = risk-on = growth stocks benefit',adj:'+LOW',adjC:'#4f8ef7'},
+    ]
+  },
+  {
+    name:'DDOG + NET Earnings: Apr 30, 2026 (41 days)',
+    active:true,
+    flag:'UPCOMING',flagColor:'#ffa726',
+    headColor:'#ffa726',
+    effects:[
+      {stocks:'DDOG (your holding)',why:'Your avg $127.57. Beat signal: AI revenue >12% of total, growth >26% YoY',adj:'WATCH',adjC:'#ffa726'},
+      {stocks:'NET (your holding)',why:'Your avg $208.62. Beat signal: Large deals, RPO acceleration, AI traffic %',adj:'WATCH',adjC:'#ffa726'},
+      {stocks:'MSFT + META Apr 29',why:'Set the tone — Azure AI strong → DDOG likely beats next day',adj:'PRE-SIGNAL',adjC:'#9b59ff'},
+    ]
+  },
+];
+
+// ── MACRO STATE ───────────────────────────────────────────────
+function buildMacro(){
+  var vix=LIVE.vix,usdInr=LIVE.usdInr,nifty=LIVE.nifty,oil=LIVE.brent;
+  // ── CENTRAL BANK STATUS (Mar 19, 2026 — LIVE DATA) ────────────
+  // RBI: PAUSED at 5.25% since Feb 6. Next MPC Apr 6-8 — HOLD expected (oil = inflation risk)
+  // Fed: HELD at 3.5%-3.75% on Mar 18 (yesterday). Only 1 cut in 2026, Sep earliest
+  // ECB: HELD Mar 18. BoE: HELD. ALL MAJOR CENTRAL BANKS HOLDING = global liquidity tight
+  var rbi='PAUSED',repo=5.25,fii=NSE.loaded?NSE.fii_net:-2714,earRev=-2.5,credit=11.2,pmi=49.5,gdp=7.4,geo=true;
+  var fedRate=3.625,fedStance='HOLD',cbGlobal='ALL_HOLDING',rbiNextMtg='APR 6-8';
+  var cpi=3.2+(oil>100?0.8:0),realRate=repo-cpi;
+  var rs=0;
+  if(vix<14)rs+=2;else if(vix>25)rs-=2;else if(vix>19)rs-=1;
+  // RBI PAUSED (not cutting) = neutral. All CBs holding = global liquidity headwind
+  if(rbi==='CUTTING') rs+=2;
+  else if(rbi==='PAUSED') rs+=0; // paused = no new stimulus
+  if(cbGlobal==='ALL_HOLDING') rs-=1; // Fed+ECB+BoE all holding = FII sells EM
+  if(fii>0) rs+=1; else if(fii<-10000) rs-=2; else rs-=1;
+  if(earRev<-5)rs-=2;else if(earRev<-2)rs-=1;
+  if(gdp>7)rs+=1;
+  if(oil>110)rs-=2;else if(oil>90)rs-=1;
+  if(nifty>24000)rs+=1;else if(nifty<21000)rs-=2;
+  var reg=rs>=4?'BULL':rs>=1?'SOFT_BULL':rs>=-1?'SIDEWAYS':rs>=-3?'SOFT_BEAR':'BEAR';
+  var adj={};
+  // Gold REx — correctly models current dynamics:
+  // Iran war → oil surge → inflation fears → Fed pauses → dollar strengthens → gold headwind
+  // But: negative real rates + rupee weakness still support gold in INR
+  var oilInflationHeadwind = (oil > 95) ? -4 : 0; // high oil = Fed pause fear = dollar up = gold headwind
+  var fedPauseRisk = (oil > 95 && rbi === 'CUTTING') ? -2 : 0; // divergence: India cutting but Fed pausing
+  var geoGoldBoost = geo ? 3 : 0; // real geopolitical = some safe haven, but less than model assumed
+  adj.GOLD = (realRate < 0 ? 6 : -2) + (usdInr > 88 ? 4 : usdInr > 84 ? 2 : 0) +
+             (fii < -3000 ? 3 : 0) + geoGoldBoost + oilInflationHeadwind + fedPauseRisk;
+  // Note: gold is sideways in USD but supported in INR due to rupee weakness
+  // Net: gold in INR still positive but not surging as simple geo logic suggested
+  adj.SILVER=adj.GOLD*0.55+(pmi<50?-3:2);
+  adj.GSEC=(rbi==='CUTTING'?3:-3)+(oil>100?-1:0);
+  adj.LIQUID=(repo-6.8)*0.5;
+  adj.ARB=vix>18?1.5:vix>15?0.8:-0.5;
+  var eqBase=(earRev/100*50)+(fii<-3000?-4:fii>2000?2:-1)+(oil>95?-2:0)+(nifty>24500?1:nifty<22000?-2:0);
+  var uLift=Math.max(0,(usdInr-82)/82*15);
+  adj.IT=eqBase+uLift+2;
+  adj.DEFENCE=eqBase*0.25+(geo?9:3)+2;
+  adj.CHEM=eqBase+(oil>100?-5:oil>85?-2:2);
+  adj.CONSUMER=eqBase+(oil>95?-2:0)+(credit>14?2:-1);
+  adj.BANK=(rbi==='CUTTING'?6:rbi==='PAUSED'?2:rbi==='HIKING'?-8:0)+(fii>2000?3:fii<-3000?-3:0)+(cbGlobal==='ALL_HOLDING'?-1:0);
+  adj.EMS=eqBase*0.4+2.5;
+  adj.TELECOM=eqBase*0.25+2.5;
+  adj.SOLAR=eqBase*0.35+(oil>95?5:1)+2;
+  adj.REIT=(rbi==='CUTTING'?8:rbi==='PAUSED'?1:rbi==='HIKING'?-10:0)+(fii>2000?2:0)+(cbGlobal==='ALL_HOLDING'?-2:0);
+  adj.ENERGY=eqBase+(oil>95?4:0);
+  adj.BTC=(geo?-12:5)+(fii<-3000?-8:5);
+  // US categories use US macro adjustments
+  adj.US_AI_CORE=8+(geo?2:0); // AI boom + GTC boost
+  adj.US_AI_SOFT=6+(geo?1:0); // AI infra software
+  adj.US_AI_POWER=4+(geo?3:0); // Nuclear/power for AI
+  adj.US_BROAD=3; // S&P/QQQ base
+  return{reg:reg,rs:rs,vix:parseFloat(vix).toFixed(1),rbi:rbi,repo:repo,fii:fii,earRev:earRev,
+    realRate:realRate.toFixed(1),brent:parseFloat(oil).toFixed(0),pmi:pmi.toFixed(1),
+    usdInr:parseFloat(usdInr).toFixed(2),nifty:Math.round(nifty),geo:geo,adj:adj};
+}
+
+// ── DOMINO ENGINE ─────────────────────────────────────────────
+function computeDominos(macro){
+  var ef={};
+  function add(tk,adj,reason){if(!ef[tk])ef[tk]={adj:0,reasons:[]};ef[tk].adj+=adj;ef[tk].reasons.push(reason);}
+  var oil=parseFloat(macro.brent),usdInr=parseFloat(macro.usdInr),vix=parseFloat(macro.vix);
+  // GTC / Nvidia contagion
+  add('NVDA',4,'Nvidia GTC $1T orders direct');add('NBIS',3,'GPU cloud demand from Blackwell');
+  add('CEG',2,'Data centre nuclear power demand');add('DDOG',1.5,'More AI infra = more monitoring');
+  add('NET',1.5,'More AI traffic at edge');add('AVGO',2.5,'Networking chips for AI clusters');
+  add('POLYCAB',1,'Data centre cabling');add('DIXON',0.8,'AI edge device EMS');
+  // Oil dominos
+  if(oil>95){var s=oil>110?3:oil>100?2:1;
+    add('ONGC',s*3,'Oil $'+oil.toFixed(0)+' direct revenue');add('NTPC',s*1.5,'Strengthens renewable economics');
+    add('WAAREE NRG',s*2,'High oil = renewable case stronger');add('L AND T',s*1.5,'GCC construction spend');
+    add('HAL',s*1,'Geo defence orders');add('BEL',s*1,'Geo defence electronics');
+    add('DEEPAK NIT',-(s*3),'Oil = feedstock cost pressure');add('ULTRATECH',-(s*1.5),'Energy = 30% cement cost');
+    add('MARUTI',-(s*2),'High oil deters purchases');add('HUL',-(s*1),'Logistics cost');
+    add('CEG',s*0.5,'Geo = nuclear energy attractive');
+  }
+  // Rupee weakness
+  if(usdInr>88){var r=Math.min(3,(usdInr-82)/82*15);
+    ['TCS','INFOSYS','HCLTECH','SUN PHARMA','DR REDDYS','KPIT TECH','PERSISTENT','PI INDS'].forEach(function(t){add(t,r,'USD/INR '+usdInr.toFixed(1)+' revenue boost');});
+    add('GOLD ETF',r,'Rupee weakness amplifies gold in INR');
+    // US stocks — rupee weakness is POSITIVE for Indian investor holding US stocks
+    ['NVDA','MSFT','META','AMZN','DDOG','NET','CEG','NBIS'].forEach(function(t){add(t,r*0.5,'Rupee weakness = INR return bonus on USD holdings');});
+  }
+  // RBI cuts
+  if(macro.rbi==='CUTTING'){
+    add('APTUS VALUE',2.5,'EMI falls = affordable housing');add('BAJAJ FIN',1.5,'Cost of funds falls');
+    add('DLF',1.5,'Home loan demand');add('EMBASSY REIT',1.5,'Cap rate compression');
+    add('RBI G-SEC',1.5,'Bond prices rise');add('CORP BOND MF',1,'Portfolio value rises');
+    // US: rate cuts globally = risk-on = US growth stocks benefit
+    add('NVDA',0.5,'Global rate cuts = risk-on');add('NBIS',0.5,'Risk-on benefits growth stocks');
+  }
+  // AI boom
+  add('NTPC',1,'AI data centre power demand India');add('POLYCAB',1.2,'Data centre cabling');
+  add('PERSISTENT',2,'Most AI-native Indian IT');add('EMBASSY REIT',0.8,'GCC AI hub conversion');
+  // High VIX
+  if(vix>16){add('ARB FUND',1.5,'High VIX = wider arb spreads');add('GOLD ETF',1,'Fear = safe haven');}
+  return ef;
+}
+
+// ── VALUATION DATA ────────────────────────────────────────────
+var VALUATION={
+  NVDA:[55,35,false],'MSFT':[31,28,false],'META':[24,20,false],'AMZN':[34,48,false],'GOOGL':[21,22,false],
+  AVGO:[26,22,false],ARM:[80,60,false],PLTR:[120,80,false],ORCL:[25,20,false],CRM:[52,48,false],
+  SNOW:[120,95,false],DDOG:[85,70,false],NET:[175,120,false],NBIS:[50,40,false],CEG:[40,30,false],VRT:[45,35,false],
+  TCS:[28,24,false],INFOSYS:[25,22,false],HCLTECH:[22,18,false],'HDFC BANK':[18,16,true],
+  'ICICI BANK':[17,15,true],ONGC:[8,11,true],'SUN PHARMA':[32,28,false],HAL:[32,22,false],
+  BEL:[42,28,false],'GOLD ETF':[0,0,false]
+};
+function getVal(tk){
+  var v=VALUATION[tk];if(!v||v[0]===0)return{adj:0,label:'NAV/commodity based',color:'#3a4d6e'};
+  var cur=v[0],avg=v[1],useBook=v[2];var ratio=cur/avg;
+  if(ratio>1.35)return{adj:-6,label:(useBook?'P/B':'P/E')+' '+cur+'x vs avg '+avg+'x — EXPENSIVE',color:'#ff4757'};
+  if(ratio>1.15)return{adj:-3,label:(useBook?'P/B':'P/E')+' '+cur+'x vs avg '+avg+'x — MILDLY RICH',color:'#ff6b35'};
+  if(ratio<0.75)return{adj:6,label:(useBook?'P/B':'P/E')+' '+cur+'x vs avg '+avg+'x — CHEAP',color:'#00d4aa'};
+  if(ratio<0.90)return{adj:3,label:(useBook?'P/B':'P/E')+' '+cur+'x vs avg '+avg+'x — FAIR/CHEAP',color:'#00c8e0'};
+  return{adj:0,label:(useBook?'P/B':'P/E')+' '+cur+'x vs avg '+avg+'x — FAIR',color:'#ffa726'};
+}
+
+// ── KELLY + CORRELATION ───────────────────────────────────────
+function kellySize(prob,up,dn){var p=prob/100,q=1-p,b=Math.max(0.1,Math.abs(up/Math.max(dn,1)));var k=(p*b-q)/b;return Math.max(0.03,Math.min(0.25,k));}
+var SECT_FOR={
+  // US stocks
+  NVDA:'US_AI',MSFT:'US_AI',META:'US_AI',AMZN:'US_AI',GOOGL:'US_AI',AVGO:'US_AI',ARM:'US_AI',
+  DDOG:'US_SaaS',NET:'US_SaaS',NBIS:'US_SaaS',PLTR:'US_SaaS',ORCL:'US_SaaS',CRM:'US_SaaS',SNOW:'US_SaaS',
+  CEG:'US_POWER',VRT:'US_POWER',VOO:'US_ETF',QQQ:'US_ETF',SOXX:'US_ETF',VTI:'US_ETF',
+  // India IT
+  'TCS':'IN_IT','INFOSYS':'IN_IT','HCLTECH':'IN_IT','WIPRO':'IN_IT','KPIT TECH':'IN_IT',
+  'PERSISTENT':'IN_IT','LTIMINDTREE':'IN_IT','COFORGE':'IN_IT','MPHASIS':'IN_IT','CYIENT':'IN_IT',
+  'SUN PHARMA':'IN_PHARMA','DR REDDYS':'IN_PHARMA','CIPLA':'IN_PHARMA','DIVISLAB':'IN_PHARMA',
+  'LUPIN':'IN_PHARMA','TORNTPHARM':'IN_PHARMA','MAX HEALTH':'IN_PHARMA',
+  // India Banking
+  'ICICI BANK':'IN_BANK','HDFC BANK':'IN_BANK','KOTAK BANK':'IN_BANK','SBI':'IN_BANK',
+  'AXIS BANK':'IN_BANK','BAJAJ FIN':'IN_BANK','INDUSIND BK':'IN_BANK','BANK OF BARO':'IN_BANK',
+  'FEDERAL BK':'IN_BANK','SHRIRAM FIN':'IN_BANK','APTUS VALUE':'IN_BANK','M&M FIN':'IN_BANK',
+  'HDFC LIFE':'IN_BANK','SBI LIFE':'IN_BANK','BAJAJ FINSERV':'IN_BANK','CDSL':'IN_BANK',
+  // India Defence
+  'HAL':'IN_DEF','BEL':'IN_DEF','COCHIN SHIP':'IN_DEF','BHARAT FORGE':'IN_DEF',
+  'MTAR TECH':'IN_DEF','DATA PATTERNS':'IN_DEF','GARDEN REACH':'IN_DEF','PARAS DEFENCE':'IN_DEF',
+  // India Auto
+  'MARUTI':'IN_AUTO','TATA MOTORS':'IN_AUTO','M&M':'IN_AUTO','HERO MOTOCO':'IN_AUTO',
+  'EICHER MOTOR':'IN_AUTO','BAJAJ AUTO':'IN_AUTO','TVS MOTOR':'IN_AUTO',
+  // India FMCG
+  'HUL':'IN_FMCG','ITC':'IN_FMCG','NESTLE':'IN_FMCG','TITAN':'IN_FMCG','VARUN BEV':'IN_FMCG',
+  'MARICO':'IN_FMCG','DABUR':'IN_FMCG','BRITANNIA':'IN_FMCG','TRENT':'IN_FMCG',
+  // India Infra
+  'L AND T':'IN_INFRA','NTPC':'IN_INFRA','POWER GRID':'IN_INFRA','ULTRATECH':'IN_INFRA',
+  'ABB INDIA':'IN_INFRA','SIEMENS IN':'IN_INFRA','CUMMINS IN':'IN_INFRA','KEC INTL':'IN_INFRA',
+  'ADANI PORTS':'IN_INFRA','CONTAINER COR':'IN_INFRA',
+  // India EMS/Chem
+  'DIXON':'IN_EMS','POLYCAB':'IN_EMS','DEEPAK NIT':'IN_CHEM','PI INDS':'IN_CHEM',
+  'NAVIN FLUOR':'IN_CHEM','AARTI INDS':'IN_CHEM','CLEAN SCIENCE':'IN_CHEM','SRF':'IN_CHEM',
+  'PIDILITE':'IN_CHEM',
+  // India Metals
+  'TATA STEEL':'IN_METAL','JSW STEEL':'IN_METAL','HINDALCO':'IN_METAL','VEDANTA':'IN_METAL',
+  // India Energy
+  'ONGC':'IN_ENERGY','RELIANCE':'IN_ENERGY','COAL INDIA':'IN_ENERGY','NHPC':'IN_ENERGY',
+  'GAIL':'IN_ENERGY','IOC':'IN_ENERGY','WAAREE NRG':'IN_ENERGY',
+  // India Realty
+  'DLF':'IN_REALTY','PRESTIGE':'IN_REALTY','GODREJ PROP':'IN_REALTY',
+  'OBEROI REAL':'IN_REALTY',
+  // India Safe instruments
+  'GOLD ETF':'SAFE','SILVER ETF':'SAFE','RBI G-SEC':'SAFE','CORP BOND MF':'SAFE',
+  'ARB FUND':'SAFE','HDFC LIQ':'SAFE','EMBASSY REIT':'SAFE',
+  // India Misc
+  'BHARTI ARTL':'IN_TELECOM','INDUS TOWERS':'IN_TELECOM','VODAFONE ID':'IN_TELECOM',
+  'DELHIVERY':'IN_LOGISTIC','BLUE DART':'IN_LOGISTIC',
+  'INTERGLOBE':'IN_AVIATION','INDIAN HOTELS':'IN_HOTEL',
+};
+var SECT_CAP={
+  US_AI:.22,US_SaaS:.18,US_POWER:.10,US_ETF:.15,
+  IN_IT:.22,IN_BANK:.22,IN_DEF:.18,IN_FMCG:.18,IN_AUTO:.15,
+  IN_INFRA:.18,IN_EMS:.12,IN_CHEM:.12,IN_METAL:.10,IN_ENERGY:.15,
+  IN_REALTY:.12,IN_PHARMA:.18,IN_TELECOM:.10,IN_LOGISTIC:.08,
+  IN_AVIATION:.08,IN_HOTEL:.08,SAFE:.30
+};
+
+function applyCorr(picks,rawK){
+  var sT={};picks.forEach(function(p,i){var s=SECT_FOR[p.inst.tk]||'OTHER';sT[s]=(sT[s]||0)+rawK[i];});
+  var adj={};picks.forEach(function(p,i){var s=SECT_FOR[p.inst.tk]||'OTHER';var cap=SECT_CAP[s]||0.28;adj[i]=sT[s]>cap?rawK[i]*(cap/sT[s]):rawK[i];});
+  var sum=Object.values(adj).reduce(function(a,b){return a+b;},0)||1;
+  var norm={};Object.keys(adj).forEach(function(k){norm[k]=adj[k]/sum;});return norm;
+}
+
+// ── DIVIDEND CALENDAR ─────────────────────────────────────────
+var DIV_MONTHS={ONGC:[2,10],ITC:[6,11],TCS:[0,3,6,9],INFOSYS:[0,6],HCLTECH:[0,3,6,9],SBI:[5],'HDFC BANK':[4],'ICICI BANK':[5],NTPC:[1,8],BEL:[1],HAL:[1],POLYCAB:[7],'EMBASSY REIT':[0,3,6,9],'RBI G-SEC':[3,9],CEG:[1,4,7,10],MSFT:[1,4,7,10],META:[0,3,6,9],AMZN:[],NVDA:[],};
+function getDivCap(tk,holdM){var ms=DIV_MONTHS[tk];if(!ms||!ms.length)return null;var today=new Date(),tm=today.getMonth(),cap=0,nextDiv=null;for(var m=0;m<holdM;m++){var cm=(tm+m)%12;if(ms.indexOf(cm)>=0){cap++;if(nextDiv===null)nextDiv=m;}}return cap>0?{captured:cap,nextDiv:nextDiv,label:cap+' dividend'+(cap>1?'s':'')+' in hold'+(nextDiv!==null?', next ~'+nextDiv+'M':'')}:null;}
+
+// ── STOP LOSS ─────────────────────────────────────────────────
+function getStopLoss(inst,s,isUS){
+  var cp=inst.cp>0?inst.cp:isUS?(US_PRICES[inst.tk]||0):0;
+  if(cp<=0)return null;
+  var mv=s.sig/Math.sqrt(12);var slP=cp*(1-2*mv);
+  if(isUS)return{price:'$'+slP.toFixed(2),pct:(-2*mv*100).toFixed(1)+'%',note:'Or exit if regime shifts to BEAR'};
+  return{price:fmtK(Math.round(slP)),pct:(-2*mv*100).toFixed(1)+'%',note:'Or exit if regime shifts to BEAR'};
+}
+
+// ── EARNINGS ──────────────────────────────────────────────────
+function getEarnAlert(){
+  var today=new Date();
+  var daysToApr30=Math.ceil((new Date(2026,3,30)-today)/(864e5));
+  if(daysToApr30<=45&&daysToApr30>0)return{msg:'DDOG + NET + AMZN report in '+daysToApr30+' days (Apr 30). MSFT + META report Apr 29. These results will significantly move your DDOG and NET positions. AI revenue commentary is the key signal to watch.'};
+  return null;
+}
+
+// ── UNIVERSE ──────────────────────────────────────────────────
+// US INSTRUMENTS
+var US_U=[
+  // Tier 1 AI Compute Core
+  {tk:'NVDA',nm:'Nvidia Corporation',sc:'AI Compute',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#00d4aa',cp:0,dv:0.0,tg:['AI GPU MONOPOLY','BLACKWELL $1T','GTC 2026 CATALYST'],bR:{B:55,SB:35,SW:20,SBR:-5,BR:-35},sg:{B:.45,SB:.38,SW:.30,SBR:.45,BR:.60},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:9,SW:6,SBR:1,BR:0},mH:60,wy:"Makes the GPUs that run all AI. $1T Blackwell orders through 2027. Jensen Huang GTC 2026 = most important AI event. Data centre capex cycle = structural decade-long demand.",sh:"Directly benefits from every AI announcement. Most critical AI infrastructure stock globally.",country:'US',usdPrice:115},
+  {tk:'MSFT',nm:'Microsoft Corporation',sc:'Cloud AI Platform',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#00c8e0',cp:0,dv:1.0,tg:['AZURE AI LEADER','OPENAI PARTNER','$80B CAPEX 2026'],bR:{B:28,SB:20,SW:12,SBR:2,BR:-10},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.28},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:9,SB:9,SW:7,SBR:4,BR:1},mH:60,wy:"Azure AI growing 40%+. OpenAI exclusive partner. $80B capex 2026. Enterprise AI adoption = MSFT wins. Most mature AI monetisation platform.",sh:"Defensive large cap with massive AI upside. Earnings Apr 29 — key signal for DDOG/NET next day.",country:'US',usdPrice:408},
+  {tk:'META',nm:'Meta Platforms',sc:'AI + Social',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#4f8ef7',cp:0,dv:0.5,tg:['$65B AI CAPEX','LLAMA LEADER','AI INFRA SCALE'],bR:{B:32,SB:22,SW:12,SBR:-2,BR:-20},sg:{B:.30,SB:.25,SW:.20,SBR:.28,BR:.38},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:9,SB:8,SW:6,SBR:2,BR:0},mH:60,wy:"$65B AI capex 2026 — biggest single-company AI commitment. Llama open-source wins enterprise. India = 500M Meta users = largest market. Ad AI = revenue compounder.",sh:"AI capex drives NVDA, NBIS, CEG. Results Apr 29 = key signal.",country:'US',usdPrice:644},
+  {tk:'AMZN',nm:'Amazon.com Inc',sc:'Cloud + Commerce',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#ffa726',cp:0,dv:0.0,tg:['AWS AI LEADER','TRAINIUM CHIPS','INDIA EXPANSION'],bR:{B:30,SB:20,SW:12,SBR:2,BR:-12},sg:{B:.28,SB:.24,SW:.18,SBR:.24,BR:.34},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:9,SB:8,SW:6,SBR:3,BR:1},mH:60,wy:"AWS largest cloud. Building Trainium AI chips to compete with Nvidia. India expansion = e-commerce + cloud. Prime = 100M+ subscribers.",sh:"Most diversified of Mag7. AWS AI + India commerce. Results Apr 30.",country:'US',usdPrice:213},
+  {tk:'GOOGL',nm:'Alphabet Inc',sc:'Search + AI Cloud',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#ff6b35',cp:0,dv:0.0,tg:['GEMINI AI','GOOGLE CLOUD','TPU ADVANTAGE'],bR:{B:26,SB:18,SW:10,SBR:0,BR:-14},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:8,SB:8,SW:6,SBR:3,BR:1},mH:60,wy:"Google search monopoly + Gemini AI + Google Cloud. TPU chips built in-house = lower compute cost. YouTube AI = massive monetisation opportunity.",sh:"Search + AI cloud + in-house chips = most cost-efficient AI play.",country:'US',usdPrice:298},
+  {tk:'AVGO',nm:'Broadcom Inc',sc:'AI Networking Chips',ct:'US LARGE CAP',rc:'US_AI_CORE',cl:'#9b59ff',cp:0,dv:2.0,tg:['CUSTOM AI CHIPS','GOOGLE META CLIENT','NETWORKING'],bR:{B:38,SB:25,SW:14,SBR:2,BR:-12},sg:{B:.32,SB:.26,SW:.20,SBR:.26,BR:.34},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:9,SB:8,SW:6,SBR:3,BR:1},mH:60,wy:"Makes custom AI chips for Google (TPU) and Meta (MTIA). Networking chips connect all GPU clusters. VMware acquisition adds software revenue. 2% dividend.",sh:"Every AI data centre uses Broadcom networking. Custom chip revenue from Google and Meta.",country:'US',usdPrice:330},
+  {tk:'PLTR',nm:'Palantir Technologies',sc:'AI Enterprise Gov',ct:'US MID CAP',rc:'US_AI_SOFT',cl:'#ff4757',cp:0,dv:0.0,tg:['US GOVT AI','AIP PLATFORM','NATO + DEFENCE'],bR:{B:50,SB:25,SW:8,SBR:-10,BR:-35},sg:{B:.50,SB:.42,SW:.32,SBR:.48,BR:.60},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:7,SW:3,SBR:0,BR:0},mH:36,wy:"AI for US government and NATO. AIP platform = enterprise AI. Iran war + geopolitical tension = direct defence AI spending catalyst. Very high volatility.",sh:"Geopolitical tensions are DIRECTLY POSITIVE — defence + govt AI spending accelerates.",country:'US',usdPrice:82},
+  {tk:'ORCL',nm:'Oracle Corporation',sc:'Cloud AI Database',ct:'US LARGE CAP',rc:'US_AI_SOFT',cl:'#ff6b35',cp:0,dv:1.0,tg:['GPU CLOUD DEALS','ENTERPRISE AI','AUTONOMOUS DB'],bR:{B:26,SB:18,SW:10,SBR:2,BR:-8},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.26},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:8,SB:7,SW:6,SBR:4,BR:2},mH:60,wy:"GPU cloud contracts with xAI, OpenAI. Enterprise database monopoly transitioning to AI. Autonomous Database = AI-driven. High-margin cloud growth.",sh:"Oracle GPU cloud = direct AI infrastructure beneficiary with stable enterprise base.",country:'US',usdPrice:153},
+  // Tier 2 AI Infrastructure Software
+  {tk:'DDOG',nm:'Datadog Inc',sc:'AI Observability',ct:'US MID CAP',rc:'US_AI_SOFT',cl:'#9b59ff',cp:0,dv:0.0,tg:['YOU HOLD $127.57','EARNINGS APR 30','AI MONITORING'],bR:{B:40,SB:22,SW:8,SBR:-8,BR:-25},sg:{B:.38,SB:.30,SW:.22,SBR:.36,BR:.48},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:8,SW:4,SBR:0,BR:0},mH:36,wy:"Every AI app needs monitoring. AI-native customers now 12% of revenue growing fast. Bits AI SRE = autonomous monitoring. Usage-based model = scales with AI infra. Your avg $127.57.",sh:"More AI infra = more Datadog monitoring revenue. Earnings Apr 30 — critical for your position.",country:'US',usdPrice:129,yourPos:{avg:127.57,qty:3.289706}},
+  {tk:'NET',nm:'Cloudflare Inc',sc:'Edge AI Network',ct:'US MID CAP',rc:'US_AI_SOFT',cl:'#ff6b35',cp:0,dv:0.0,tg:['YOU HOLD $208.62','EARNINGS APR 30','EDGE AI LEADER'],bR:{B:42,SB:22,SW:7,SBR:-8,BR:-25},sg:{B:.40,SB:.32,SW:.24,SBR:.38,BR:.50},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:8,SW:4,SBR:0,BR:0},mH:36,wy:"Edge AI inference at 300+ cities globally. Workers AI = run AI at the edge. Zero Trust security = enterprise expansion. Agent routing = AI agents need edge compute. Your avg $208.62.",sh:"AI traffic surge = Cloudflare handles more. Earnings Apr 30 with DDOG — critical double event.",country:'US',usdPrice:225,yourPos:{avg:208.62,qty:1.066992}},
+  {tk:'NBIS',nm:'Nebius Group NV',sc:'EU GPU Cloud AI',ct:'US SMALL CAP',rc:'US_AI_SOFT',cl:'#ff4757',cp:0,dv:0.0,tg:['YOU HOLD $126.02 (DOWN)','GPU CLOUD EU','NVIDIA PARTNER'],bR:{B:65,SB:30,SW:5,SBR:-20,BR:-50},sg:{B:.60,SB:.50,SW:.40,SBR:.60,BR:.80},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:6,SW:2,SBR:0,BR:0},mH:36,wy:"Former Yandex, now pure-play EU AI cloud. Rents GPU clusters to AI startups. European data sovereignty = GDPR-compliant AI cloud. Every Nvidia Blackwell announcement = Nebius demand surge. Your avg $126.02, currently -5.95%.",sh:"GPU cloud demand from Blackwell announcement = potential recovery. Hold for now.",country:'US',usdPrice:118,yourPos:{avg:126.02,qty:1.496794}},
+  // Tier 3 AI Power + Physical
+  {tk:'CEG',nm:'Constellation Energy',sc:'Nuclear AI Power',ct:'US LARGE CAP',rc:'US_AI_POWER',cl:'#00c8e0',cp:0,dv:0.8,tg:['YOU HOLD $310.43','NUCLEAR MONOPOLY','MICROSOFT 20YR DEAL'],bR:{B:30,SB:20,SW:12,SBR:4,BR:-5},sg:{B:.28,SB:.22,SW:.18,SBR:.20,BR:.24},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:8,SB:8,SW:7,SBR:5,BR:2},mH:60,wy:"Largest US nuclear power producer. Microsoft 20-year nuclear deal for AI data centres. CyrusOne 380MW data centre deal signed. Every AI capex announcement = CEG power demand. Analyst target $397 avg. Your avg $310.43.",sh:"Iran war CNBC article: 'options to play nuclear amid Mideast war' = direct near-term catalyst.",country:'US',usdPrice:317,yourPos:{avg:310.43,qty:0.714253}},
+  {tk:'VRT',nm:'Vertiv Holdings',sc:'Data Centre Cooling',ct:'US MID CAP',rc:'US_AI_POWER',cl:'#ffa726',cp:0,dv:0.0,tg:['DATA CENTRE COOLING','GPU COOLING SYSTEMS','AI INFRA PHYSICAL'],bR:{B:45,SB:25,SW:10,SBR:-5,BR:-25},sg:{B:.42,SB:.35,SW:.26,SBR:.38,BR:.50},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:8,SW:5,SBR:1,BR:0},mH:36,wy:"AI GPUs generate massive heat — need specialised cooling. Vertiv makes cooling and power systems for data centres. Every Nvidia Blackwell GPU cluster = Vertiv cooling contract. High demand visibility.",sh:"Direct physical AI infrastructure — GPUs cannot run without cooling systems.",country:'US',usdPrice:85},
+  // ETFs
+  {tk:'VOO',nm:'Vanguard S&P 500 ETF',sc:'US Broad Market',ct:'US ETF',rc:'US_BROAD',cl:'#4f8ef7',cp:0,dv:1.4,tg:['S&P 500 INDEX','0.03% EXPENSE','US DIVERSIFIER'],bR:{B:22,SB:14,SW:8,SBR:-3,BR:-20},sg:{B:.18,SB:.15,SW:.12,SBR:.15,BR:.22},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:7,SB:7,SW:6,SBR:4,BR:1},mH:60,wy:"500 largest US companies. 0.03% expense ratio — near zero cost. Diversified US exposure. Warren Buffett's recommended index fund for most investors.",sh:"Most diversified US option. Best for long holds where individual stock risk is too high.",country:'US',usdPrice:520},
+  {tk:'QQQ',nm:'Invesco Nasdaq 100 ETF',sc:'US Tech Heavy',ct:'US ETF',rc:'US_BROAD',cl:'#9b59ff',cp:0,dv:0.5,tg:['NASDAQ 100','TECH HEAVY AI','HIGHER BETA'],bR:{B:30,SB:18,SW:8,SBR:-8,BR:-30},sg:{B:.22,SB:.18,SW:.14,SBR:.20,BR:.30},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:8,SB:7,SW:5,SBR:2,BR:0},mH:60,wy:"Nasdaq 100 — top 100 non-financial Nasdaq stocks. 45%+ in Mag7. Captures full AI ecosystem. PEG ratio ~1.3x vs S&P 500 1.47x. Higher beta than VOO.",sh:"Best AI ecosystem ETF. Higher risk/reward than VOO. Good for moderate to aggressive.",country:'US',usdPrice:599},
+  {tk:'SOXX',nm:'iShares Semiconductor ETF',sc:'Semiconductor AI',ct:'US ETF',rc:'US_AI_CORE',cl:'#00d4aa',cp:0,dv:0.8,tg:['SEMICONDUCTOR INDEX','NVDA TSMC AVGO','AI CHIPS DIRECT'],bR:{B:45,SB:25,SW:10,SBR:-10,BR:-35},sg:{B:.38,SB:.30,SW:.22,SBR:.35,BR:.48},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:10,SB:8,SW:5,SBR:1,BR:0},mH:36,wy:"Top semiconductor companies. NVDA + AVGO + TSMC ADR + AMD + Micron. Captures entire AI chip supply chain. Higher risk than QQQ but direct AI hardware exposure.",sh:"GTC announcement is direct catalyst — semiconductor index surges on Nvidia news.",country:'US',usdPrice:210},
+  {tk:'VTI',nm:'Vanguard Total Market ETF',sc:'US Total Market',ct:'US ETF',rc:'US_BROAD',cl:'#00c8e0',cp:0,dv:1.4,tg:['TOTAL US MARKET','YOU HOLD $337.85','BROADEST US'],bR:{B:22,SB:14,SW:8,SBR:-4,BR:-22},sg:{B:.18,SB:.15,SW:.12,SBR:.16,BR:.24},tM:{s:.70,l:.70},tS:'US 30% slab',tL:'US 30% slab',rF:{B:7,SB:7,SW:6,SBR:4,BR:1},mH:60,wy:"All US stocks — 3500+. Most diversified US ETF. Your existing small position. Good base layer for US exposure.",sh:"Broadest US diversification. Your existing holding.",country:'US',usdPrice:326,yourPos:{avg:337.85,qty:0.001761}},
+];
+
+// INDIA INSTRUMENTS — 105 stocks fully calibrated
+var IN_U=[
+
+// ═══════════════════════════════════════════════════════
+// IT SECTOR (12 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'TCS',nm:'Tata Consultancy',sc:'IT Large Cap',ct:'IN LARGE CAP',rc:'IT',cl:'#4f8ef7',cp:3680,dv:2.1,nse:'TCS',
+ tg:['USD REVENUE','2.1% DIV','AI GROWTH'],
+ bR:{B:18,SB:14,SW:10,SBR:2,BR:-12},sg:{B:.22,SB:.18,SW:.15,SBR:.20,BR:.28},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:8,SBR:5,BR:2},mH:60,
+ wy:"Largest IT. 2.1% dividend. USD revenue — rupee at 92 is direct tailwind. AI services growing 35%+ YoY.",
+ sh:"USD earner benefits from rupee weakness. Most defensive large IT."},
+
+{tk:'INFOSYS',nm:'Infosys',sc:'IT Large Cap',ct:'IN LARGE CAP',rc:'IT',cl:'#4f8ef7',cp:1890,dv:2.8,nse:'INFY',
+ tg:['USD REVENUE','2.8% DIV','AI PIVOT'],
+ bR:{B:18,SB:13,SW:9,SBR:1,BR:-12},sg:{B:.22,SB:.18,SW:.15,SBR:.20,BR:.28},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:8,SBR:5,BR:2},mH:60,
+ wy:"2.8% dividend — highest large IT. USD revenue benefits from rupee at 92. AI deals growing.",
+ sh:"Most defensive large IT due to highest dividend + USD revenue."},
+
+{tk:'HCLTECH',nm:'HCL Technologies',sc:'IT Large Cap',ct:'IN LARGE CAP',rc:'IT',cl:'#4f8ef7',cp:1720,dv:3.5,nse:'HCLTECH',
+ tg:['3.5% DIV HIGHEST','USD REVENUE','HCL SOFTWARE'],
+ bR:{B:18,SB:13,SW:9,SBR:2,BR:-10},sg:{B:.22,SB:.18,SW:.15,SBR:.19,BR:.26},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:8,SBR:5,BR:3},mH:60,
+ wy:"Highest IT dividend 3.5%. HCL Software adds annuity revenue. USD earner.",
+ sh:"Highest dividend + USD = most defensive large IT."},
+
+{tk:'WIPRO',nm:'Wipro',sc:'IT Large Cap',ct:'IN LARGE CAP',rc:'IT',cl:'#4f8ef7',cp:310,dv:0.3,nse:'WIPRO',
+ tg:['USD REVENUE','TURNAROUND','ACQUISITIONS'],
+ bR:{B:16,SB:11,SW:8,SBR:0,BR:-14},sg:{B:.24,SB:.20,SW:.16,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:7,SBR:4,BR:1},mH:60,
+ wy:"USD earner, turnaround story. Rupee weakness at 92 helps USD revenue.",
+ sh:"USD earner benefits from rupee weakness."},
+
+{tk:'PERSISTENT',nm:'Persistent Systems',sc:'IT AI Services',ct:'IN MID CAP',rc:'IT',cl:'#00d4aa',cp:5400,dv:0.55,nse:'PERSISTENT',
+ tg:['FASTEST IT GROWTH','AI SERVICES','USD REVENUE'],
+ bR:{B:34,SB:18,SW:7,SBR:-8,BR:-18},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.35},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:5,SBR:2,BR:0},mH:60,
+ wy:"Fastest mid-cap IT. AI-native. USD revenues. GTC = direct AI services tailwind.",
+ sh:"Most AI-native Indian IT. Direct beneficiary of US AI boom."},
+
+{tk:'KPIT TECH',nm:'KPIT Technologies',sc:'Auto Tech EV',ct:'IN MID CAP',rc:'IT',cl:'#00d4aa',cp:1680,dv:0.20,nse:'KPITTECH',
+ tg:['EV SOFTWARE','BMW VW CLIENT','35% GROWTH'],
+ bR:{B:42,SB:20,SW:6,SBR:-12,BR:-30},sg:{B:.40,SB:.34,SW:.26,SBR:.40,BR:.48},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:8,SW:4,SBR:0,BR:0},mH:36,
+ wy:"Pure-play EV auto software. BMW, Stellantis, VW clients. USD revenues.",
+ sh:"USD revenue = rupee weakness is direct tailwind."},
+
+{tk:'LTIMINDTREE',nm:'LTIMindtree',sc:'IT Large Cap',ct:'IN LARGE CAP',rc:'IT',cl:'#4f8ef7',cp:5200,dv:1.2,nse:'LTIM',
+ tg:['L&T GROUP','USD REVENUE','AI TRANSFORMATION'],
+ bR:{B:20,SB:14,SW:8,SBR:0,BR:-14},sg:{B:.26,SB:.22,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"L&T group IT. Large enterprise focus. USD revenue. AI and cloud transformation deals.",
+ sh:"USD earner. L&T parentage = strong client relationships."},
+
+{tk:'COFORGE',nm:'Coforge',sc:'IT Mid Cap',ct:'IN MID CAP',rc:'IT',cl:'#00d4aa',cp:7800,dv:0.8,nse:'COFORGE',
+ tg:['FAST GROWTH','INSURANCE VERTICAL','USD REVENUE'],
+ bR:{B:30,SB:18,SW:8,SBR:-4,BR:-16},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:3,BR:0},mH:36,
+ wy:"Fast growing mid-cap IT. Insurance and banking verticals. USD revenue.",
+ sh:"USD earner. Insurance vertical is recession-resistant."},
+
+{tk:'MPHASIS',nm:'Mphasis',sc:'IT Mid Cap',ct:'IN MID CAP',rc:'IT',cl:'#00d4aa',cp:2800,dv:1.5,nse:'MPHASIS',
+ tg:['HP ENTERPRISE CLIENT','BFS FOCUS','USD REVENUE'],
+ bR:{B:22,SB:14,SW:7,SBR:-4,BR:-15},sg:{B:.28,SB:.24,SW:.18,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:6,SBR:3,BR:0},mH:60,
+ wy:"Blackstone-backed. HP enterprise client base. Banking and financial services focus.",
+ sh:"USD earner. BFS focus = resilient in most regimes."},
+
+{tk:'CYIENT',nm:'Cyient',sc:'IT Engineering Services',ct:'IN MID CAP',rc:'IT',cl:'#00d4aa',cp:1650,dv:1.8,nse:'CYIENT',
+ tg:['ENGINEERING R&D','DEFENCE AEROSPACE','USD REVENUE'],
+ bR:{B:24,SB:15,SW:8,SBR:-2,BR:-12},sg:{B:.28,SB:.24,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"Engineering R&D services for aerospace, defence, rail. USD revenue. Geopolitical tensions = more defence R&D.",
+ sh:"USD earner. Defence R&D client base benefits from current geopolitical situation."},
+
+{tk:'SUN PHARMA',nm:'Sun Pharmaceutical',sc:'Pharma Export',ct:'IN LARGE CAP',rc:'IT',cl:'#00c8e0',cp:1820,dv:0.70,nse:'SUNPHARMA',
+ tg:['USD REVENUE','DEFENSIVE SECTOR','US GENERICS'],
+ bR:{B:18,SB:14,SW:12,SBR:8,BR:2},sg:{B:.22,SB:.18,SW:.16,SBR:.18,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:8,SW:9,SBR:8,BR:6},mH:60,
+ wy:"Largest pharma. USD revenue = rupee at 92 is direct tailwind. Defensive — medicine demand inelastic.",
+ sh:"Most resilient in any shock. USD revenue benefits."},
+
+{tk:'DR REDDYS',nm:'Dr Reddys Labs',sc:'Pharma Export',ct:'IN LARGE CAP',rc:'IT',cl:'#00c8e0',cp:1285,dv:0.55,nse:'DRREDDY',
+ tg:['USD REVENUE','BIOSIMILARS','RUSSIA MARKETS'],
+ bR:{B:18,SB:14,SW:11,SBR:7,BR:1},sg:{B:.22,SB:.18,SW:.16,SBR:.18,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:8,SW:9,SBR:8,BR:5},mH:60,
+ wy:"Strong US generic pipeline. Biosimilars growing. USD revenues benefit from rupee at 92.",
+ sh:"USD earner. Defensive sector."},
+
+// ═══════════════════════════════════════════════════════
+// PHARMA ADDITIONAL (5 new)
+// ═══════════════════════════════════════════════════════
+{tk:'CIPLA',nm:'Cipla',sc:'Pharma Export',ct:'IN LARGE CAP',rc:'IT',cl:'#00c8e0',cp:1520,dv:0.5,nse:'CIPLA',
+ tg:['USD REVENUE','RESPIRATORY LEADER','GENERIC DRUGS'],
+ bR:{B:16,SB:13,SW:11,SBR:7,BR:1},sg:{B:.20,SB:.17,SW:.15,SBR:.17,BR:.21},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:8,SW:9,SBR:8,BR:5},mH:60,
+ wy:"Respiratory medicines leader. USD generics revenue. India branded generics strong. Defensive.",
+ sh:"Defensive pharma. USD revenue benefits from rupee weakness."},
+
+{tk:'DIVISLAB',nm:"Divi's Laboratories",sc:'API Manufacturer',ct:'IN LARGE CAP',rc:'IT',cl:'#00c8e0',cp:5800,dv:0.8,nse:'DIVISLAB',
+ tg:['API EXPORT LEADER','USD REVENUE','HIGH ROE'],
+ bR:{B:20,SB:15,SW:11,SBR:6,BR:0},sg:{B:.22,SB:.18,SW:.15,SBR:.18,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:8,SBR:6,BR:3},mH:60,
+ wy:"API (active pharma ingredient) manufacturer. Export-heavy USD revenue. High ROE 25%+. Quality compounder.",
+ sh:"USD earner. API is upstream in drug supply chain — resilient demand."},
+
+{tk:'LUPIN',nm:'Lupin',sc:'Pharma Export',ct:'IN LARGE CAP',rc:'IT',cl:'#00c8e0',cp:2100,dv:0.4,nse:'LUPIN',
+ tg:['US GENERICS','COMPLEX INJECTABLES','USD REVENUE'],
+ bR:{B:16,SB:12,SW:10,SBR:6,BR:0},sg:{B:.24,SB:.20,SW:.17,SBR:.20,BR:.26},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:8,SW:8,SBR:7,BR:4},mH:60,
+ wy:"US generics focus. Complex injectables pipeline. Japan business. USD revenue benefits from rupee at 92.",
+ sh:"USD earner. US generics business defensive."},
+
+{tk:'TORNTPHARM',nm:'Torrent Pharmaceuticals',sc:'Branded Generics',ct:'IN MID CAP',rc:'CONSUMER',cl:'#00c8e0',cp:3200,dv:0.9,nse:'TORNTPHARM',
+ tg:['BRANDED GENERICS','GERMANY BUSINESS','DOMESTIC LEADER'],
+ bR:{B:16,SB:12,SW:10,SBR:6,BR:1},sg:{B:.20,SB:.17,SW:.14,SBR:.17,BR:.20},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:8,SBR:7,BR:5},mH:60,
+ wy:"Branded generics focus — better margins than commoditised generics. Germany business adds Europe revenue.",
+ sh:"Branded business more defensive than commodity generics."},
+
+{tk:'MAX HEALTH',nm:'Max Healthcare',sc:'Hospital Chain',ct:'IN MID CAP',rc:'CONSUMER',cl:'#00c8e0',cp:1050,dv:0.2,nse:'MAXHEALTH',
+ tg:['HOSPITAL CHAIN','MEDICAL TOURISM','DEFENSIVE'],
+ bR:{B:22,SB:16,SW:12,SBR:8,BR:2},sg:{B:.24,SB:.20,SW:.16,SBR:.18,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:8,SW:9,SBR:8,BR:6},mH:60,
+ wy:"Leading hospital chain North India. Medical tourism from Gulf growing. Healthcare demand inelastic.",
+ sh:"Healthcare is most defensive equity in any shock."},
+
+// ═══════════════════════════════════════════════════════
+// BANKING (12 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'ICICI BANK',nm:'ICICI Bank',sc:'Banking Private',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:1280,dv:0.78,nse:'ICICIBANK',
+ tg:['BEST MANAGED','NPA AT LOWS','ROE 18%+'],
+ bR:{B:24,SB:16,SW:8,SBR:-5,BR:-18},sg:{B:.24,SB:.20,SW:.16,SBR:.24,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:9,SW:7,SBR:2,BR:0},mH:60,
+ wy:"Best-managed private bank. NPA decade lows. ROE 18%+. Digital banking leader.",
+ sh:"Retail focus more resilient in downturns."},
+
+{tk:'HDFC BANK',nm:'HDFC Bank',sc:'Banking Private',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:1890,dv:1.2,nse:'HDFCBANK',
+ tg:['LARGEST PRIVATE','MERGER SYNERGIES','QUALITY'],
+ bR:{B:22,SB:15,SW:8,SBR:-5,BR:-18},sg:{B:.24,SB:.20,SW:.16,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:2,BR:0},mH:60,
+ wy:"Largest private bank post-HDFC merger. Quality franchise.",
+ sh:"Quality balance sheet limits downside."},
+
+{tk:'KOTAK BANK',nm:'Kotak Mahindra Bank',sc:'Banking Private',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:2080,dv:0.05,nse:'KOTAKBANK',
+ tg:['WEALTH MGMT LEADER','PREMIUM BANK','QUALITY'],
+ bR:{B:20,SB:14,SW:7,SBR:-5,BR:-16},sg:{B:.24,SB:.20,SW:.16,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:3,BR:0},mH:60,
+ wy:"Premium banking + wealth management. Lowest NPAs historically.",
+ sh:"Defensive private bank. Lowest NPAs."},
+
+{tk:'SBI',nm:'State Bank of India',sc:'Banking PSU',ct:'IN LARGE CAP',rc:'BANK',cl:'#00c8e0',cp:820,dv:1.46,nse:'SBIN',
+ tg:['GOVT BACKED','1.46% DIV','LARGEST BANK'],
+ bR:{B:22,SB:14,SW:7,SBR:-5,BR:-18},sg:{B:.28,SB:.24,SW:.20,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Largest bank. Govt backing. 1.46% dividend.",
+ sh:"Govt backing provides floor."},
+
+{tk:'AXIS BANK',nm:'Axis Bank',sc:'Banking Private',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:1210,dv:0.08,nse:'AXISBANK',
+ tg:['CITI PORTFOLIO','TRANSFORMATION','CATCH-UP'],
+ bR:{B:24,SB:15,SW:7,SBR:-6,BR:-20},sg:{B:.26,SB:.22,SW:.18,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Transformation story. Citi portfolio acquisition. NPA improving.",
+ sh:"Citi acquisition adds premium income base."},
+
+{tk:'BAJAJ FIN',nm:'Bajaj Finance',sc:'NBFC Consumer',ct:'IN MID CAP',rc:'BANK',cl:'#ffa726',cp:7800,dv:0.25,nse:'BAJFINANCE',
+ tg:['EMI KING','CONSUMER LENDING','RATE CUT PLAY'],
+ bR:{B:28,SB:18,SW:8,SBR:-8,BR:-22},sg:{B:.30,SB:.26,SW:.22,SBR:.30,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:6,SBR:1,BR:0},mH:60,
+ wy:"India EMI king. RBI cuts = lower cost of funds.",
+ sh:"Consumer credit slowdown risk in shocks."},
+
+{tk:'INDUSIND BK',nm:'IndusInd Bank',sc:'Banking Private',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:850,dv:1.5,nse:'INDUSINDBK',
+ tg:['VEHICLE FINANCE','RATE CUT PLAY','1.5% DIV'],
+ bR:{B:26,SB:16,SW:8,SBR:-8,BR:-22},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Vehicle finance leader. Commercial vehicle loan growth. RBI cuts = lower funding costs. Higher risk-reward than HDFC/ICICI.",
+ sh:"Higher beta private bank. Vehicle finance exposed to oil price (higher oil = fewer vehicles)."},
+
+{tk:'BANK OF BARO',nm:'Bank of Baroda',sc:'Banking PSU',ct:'IN LARGE CAP',rc:'BANK',cl:'#00c8e0',cp:240,dv:2.5,nse:'BANKBARODA',
+ tg:['PSU BANK','2.5% DIV','GOVT BACKED'],
+ bR:{B:20,SB:13,SW:7,SBR:-6,BR:-18},sg:{B:.28,SB:.24,SW:.20,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Second largest PSU bank. International operations. 2.5% dividend. Govt backing.",
+ sh:"Govt backing provides floor. International business diversifies revenue."},
+
+{tk:'FEDERAL BK',nm:'Federal Bank',sc:'Banking Private South',ct:'IN MID CAP',rc:'BANK',cl:'#4f8ef7',cp:195,dv:1.0,nse:'FEDERALBNK',
+ tg:['KERALA PRIVATE BANK','NRI REMITTANCES','RATE CUT PLAY'],
+ bR:{B:22,SB:14,SW:8,SBR:-5,BR:-16},sg:{B:.26,SB:.22,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Kerala-based private bank. NRI remittance fees = counter-cyclical revenue (rupee weakness = more remittances). Low NPA.",
+ sh:"NRI remittances rise when rupee weakens — natural hedge."},
+
+{tk:'SHRIRAM FIN',nm:'Shriram Finance',sc:'NBFC Commercial Vehicle',ct:'IN MID CAP',rc:'BANK',cl:'#ffa726',cp:2800,dv:1.2,nse:'SHRIRAMFIN',
+ tg:['CV NBFC LEADER','RATE CUT PLAY','RURAL INDIA'],
+ bR:{B:24,SB:16,SW:8,SBR:-6,BR:-20},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Largest commercial vehicle NBFC. Truck loan market dominant. RBI cuts = lower funding costs.",
+ sh:"CV finance is economic cycle indicator. Rate cuts directly benefit margins."},
+
+{tk:'APTUS VALUE',nm:'Aptus Value Housing',sc:'NBFC Affordable Housing',ct:'IN SMALL CAP',rc:'BANK',cl:'#ff6b35',cp:380,dv:0.50,nse:'APTUS',
+ tg:['AFFORDABLE HOUSING','RATE CUT PLAY','RURAL SOUTH'],
+ bR:{B:30,SB:20,SW:10,SBR:2,BR:-12},sg:{B:.32,SB:.28,SW:.22,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:9,SW:7,SBR:3,BR:0},mH:60,
+ wy:"Affordable housing finance South India. RBI rate cut = direct EMI reduction = demand surge.",
+ sh:"RBI cutting is primary catalyst."},
+
+{tk:'M&M FIN',nm:'M&M Financial Services',sc:'NBFC Rural',ct:'IN MID CAP',rc:'BANK',cl:'#ffa726',cp:280,dv:1.5,nse:'M&MFIN',
+ tg:['RURAL NBFC','TRACTOR FINANCE','RATE CUT PLAY'],
+ bR:{B:22,SB:14,SW:7,SBR:-6,BR:-18},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Rural NBFC. Tractor and vehicle loans in rural India. Good monsoon = rising NPA = better credit quality.",
+ sh:"Rural India play. Good monsoon = rising rural income = better loan repayment."},
+
+// ═══════════════════════════════════════════════════════
+// DEFENCE (8 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'HAL',nm:'Hindustan Aeronautics',sc:'Defence Aerospace',ct:'IN MID CAP',rc:'DEFENCE',cl:'#00d4aa',cp:4450,dv:0.82,nse:'HAL',
+ tg:['ORDER BOOK Rs 1L Cr','MONOPOLY','GEO+ DIRECTLY'],
+ bR:{B:36,SB:22,SW:12,SBR:5,BR:-8},sg:{B:.30,SB:.26,SW:.20,SBR:.24,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:9,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Only fighter jet maker. Rs 1L Cr order book. Tejas Mk1A, LCA Navy. Iran war = order acceleration.",
+ sh:"Geopolitical tensions DIRECTLY POSITIVE."},
+
+{tk:'BEL',nm:'Bharat Electronics',sc:'Defence Electronics',ct:'IN LARGE CAP',rc:'DEFENCE',cl:'#00d4aa',cp:320,dv:1.8,nse:'BEL',
+ tg:['DEFENCE MONOPOLY','1.8% DIV','GEO+ DIRECTLY'],
+ bR:{B:32,SB:20,SW:12,SBR:5,BR:-5},sg:{B:.28,SB:.24,SW:.18,SBR:.22,BR:.28},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:9,SW:8,SBR:6,BR:2},mH:60,
+ wy:"Defence electronics monopoly. Radar, sonar, comms systems. Iran war = order acceleration.",
+ sh:"Geopolitical shock is DIRECTLY POSITIVE for BEL."},
+
+{tk:'COCHIN SHIP',nm:'Cochin Shipyard',sc:'Defence Shipbuilding',ct:'IN MID CAP',rc:'DEFENCE',cl:'#00d4aa',cp:1950,dv:0.65,nse:'COCHINSHIP',
+ tg:['NAVY ORDERS','FIRST CARRIER','GEO+ DIRECTLY'],
+ bR:{B:38,SB:20,SW:10,SBR:3,BR:-8},sg:{B:.34,SB:.28,SW:.22,SBR:.26,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:6,SBR:4,BR:1},mH:60,
+ wy:"Largest shipyard. Naval orders. Geo = acceleration. Maritime boom from Red Sea rerouting.",
+ sh:"Geopolitical = naval order acceleration. Best shock-resilient equity."},
+
+{tk:'BHARAT FORGE',nm:'Bharat Forge',sc:'Defence Forging',ct:'IN MID CAP',rc:'DEFENCE',cl:'#00d4aa',cp:1280,dv:0.6,nse:'BHARATFORG',
+ tg:['ARTILLERY FORGINGS','DEFENCE EXPORTS','AUTO + DEFENCE'],
+ bR:{B:28,SB:18,SW:8,SBR:-2,BR:-14},sg:{B:.30,SB:.26,SW:.20,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:3,BR:0},mH:60,
+ wy:"World's largest forging company. Artillery shells, armoured vehicles. Defence + auto dual revenue. Iran war = order acceleration.",
+ sh:"Geopolitical directly positive for defence forging orders."},
+
+{tk:'MTAR TECH',nm:'MTAR Technologies',sc:'Defence Space Missiles',ct:'IN SMALL CAP',rc:'DEFENCE',cl:'#ff6b35',cp:1900,dv:0.3,nse:'MTARTECH',
+ tg:['AGNI BRAHMOS SUPPLIER','NUCLEAR','SPACE ISRO'],
+ bR:{B:40,SB:20,SW:8,SBR:-6,BR:-25},sg:{B:.38,SB:.32,SW:.24,SBR:.36,BR:.46},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:8,SW:4,SBR:1,BR:0},mH:36,
+ wy:"Critical defence supplier for Agni, BrahMos, ISRO, nuclear. Monopoly supplier. Iran war = missile demand surge.",
+ sh:"Geopolitical shock = missile and nuclear component demand surges."},
+
+{tk:'DATA PATTERNS',nm:'Data Patterns',sc:'Defence Electronics',ct:'IN SMALL CAP',rc:'DEFENCE',cl:'#ff6b35',cp:2100,dv:0.5,nse:'DATAPATTNS',
+ tg:['RADAR AVIONICS','VERTICALLY INTEGRATED','DEFENCE ELECTRONICS'],
+ bR:{B:38,SB:20,SW:8,SBR:-5,BR:-22},sg:{B:.36,SB:.30,SW:.22,SBR:.34,BR:.44},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:8,SW:4,SBR:1,BR:0},mH:36,
+ wy:"Vertically integrated defence electronics. Radar, avionics, sonar. High margin. Indigenisation policy beneficiary.",
+ sh:"Geopolitical directly positive. Indigenisation mandate = captive demand."},
+
+{tk:'GARDEN REACH',nm:'Garden Reach Shipbuilders',sc:'Defence Shipbuilding',ct:'IN MID CAP',rc:'DEFENCE',cl:'#00d4aa',cp:1650,dv:0.8,nse:'GRSE',
+ tg:['WARSHIP BUILDER','NAVY ORDERS','GEO+ DIRECTLY'],
+ bR:{B:36,SB:20,SW:10,SBR:3,BR:-8},sg:{B:.32,SB:.26,SW:.20,SBR:.24,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:6,SBR:4,BR:1},mH:60,
+ wy:"Warship and frigate builder. Direct Navy orders. Iran war = naval expansion acceleration.",
+ sh:"Geopolitical = Navy order acceleration. Complement to Cochin Shipyard."},
+
+{tk:'PARAS DEFENCE',nm:'Paras Defence & Space',sc:'Defence Optics Space',ct:'IN SMALL CAP',rc:'DEFENCE',cl:'#ff6b35',cp:980,dv:0.2,nse:'PARASDEF',
+ tg:['SPACE OPTICS','EMP PROTECTION','SMALL CAP DEFENCE'],
+ bR:{B:42,SB:20,SW:6,SBR:-10,BR:-30},sg:{B:.42,SB:.35,SW:.26,SBR:.40,BR:.52},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:7,SW:3,SBR:0,BR:0},mH:36,
+ wy:"Space optics and EMP protection. Niche defence electronics. ISRO and DRDO supplier.",
+ sh:"Very high volatility. Only in confirmed bull with geopolitical tailwind."},
+
+// ═══════════════════════════════════════════════════════
+// AUTO (7 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'MARUTI',nm:'Maruti Suzuki',sc:'Auto PV',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#f472b6',cp:11500,dv:1.04,nse:'MARUTI',
+ tg:['60% PV SHARE','SUV PIVOT','OIL HEADWIND NOW'],
+ bR:{B:22,SB:14,SW:7,SBR:-6,BR:-20},sg:{B:.26,SB:.22,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:5,SBR:2,BR:0},mH:60,
+ wy:"60% PV market share. SUV pivot underway. Oil at $101 is near-term headwind.",
+ sh:"High oil HURTS auto demand directly."},
+
+{tk:'TATA MOTORS',nm:'Tata Motors',sc:'Auto PV CV EV',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#f472b6',cp:740,dv:0.50,nse:'TATAMOTORS',
+ tg:['JAGUAR LAND ROVER','EV LEADER INDIA','TURNAROUND'],
+ bR:{B:28,SB:16,SW:6,SBR:-10,BR:-28},sg:{B:.32,SB:.28,SW:.24,SBR:.32,BR:.40},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:4,SBR:1,BR:0},mH:60,
+ wy:"JLR turnaround complete. EV leader with Nexon. High beta.",
+ sh:"JLR = UK recession risk. High oil hurts auto demand."},
+
+{tk:'M&M',nm:'Mahindra & Mahindra',sc:'Auto SUV Tractor',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#f472b6',cp:2950,dv:0.7,nse:'M&M',
+ tg:['SUV LEADER','EV TRACTOR','RURAL + URBAN'],
+ bR:{B:24,SB:16,SW:8,SBR:-4,BR:-18},sg:{B:.26,SB:.22,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"SUV market share surging. Tractor market dominant. Electric tractor launch. BE series EVs growing.",
+ sh:"Rural tractor demand = good monsoon play. SUV urban demand = credit cycle play."},
+
+{tk:'HERO MOTOCO',nm:'Hero MotoCorp',sc:'2-Wheeler Rural',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#f472b6',cp:4200,dv:2.5,nse:'HEROMOTOCO',
+ tg:['LARGEST 2-WHEELER','2.5% DIV','RURAL DEMAND PLAY'],
+ bR:{B:16,SB:12,SW:8,SBR:2,BR:-8},sg:{B:.22,SB:.18,SW:.14,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Largest 2-wheeler globally. Rural India dominant. Good monsoon = sales surge. 2.5% dividend. Defensive auto.",
+ sh:"Rural income play. Good monsoon = Hero MotoCorp sales surge."},
+
+{tk:'EICHER MOTOR',nm:'Eicher Motors (Royal Enfield)',sc:'Premium 2-Wheeler',ct:'IN MID CAP',rc:'CONSUMER',cl:'#f472b6',cp:5100,dv:0.7,nse:'EICHERMOT',
+ tg:['ROYAL ENFIELD','PREMIUM PRICING','EXPORT GROWING'],
+ bR:{B:26,SB:16,SW:8,SBR:-2,BR:-15},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:3,BR:0},mH:60,
+ wy:"Royal Enfield = premium 2-wheeler monopoly. 50%+ market share Rs 2-5L segment. Export growing. High margins.",
+ sh:"Premium segment = aspirational demand, less oil-sensitive than mass market."},
+
+{tk:'BAJAJ AUTO',nm:'Bajaj Auto',sc:'2-Wheeler Export',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#f472b6',cp:9800,dv:2.0,nse:'BAJAJ-AUTO',
+ tg:['EXPORT LEADER','AFRICA LATIN AMERICA','2% DIV'],
+ bR:{B:18,SB:13,SW:8,SBR:2,BR:-8},sg:{B:.22,SB:.18,SW:.14,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Export-heavy 2-wheeler. Africa and Latin America markets growing. Rupee weakness = export revenue boost. 2% dividend.",
+ sh:"Export revenue benefits from rupee weakness. Africa markets growing."},
+
+{tk:'TVS MOTOR',nm:'TVS Motor Company',sc:'2-Wheeler EV',ct:'IN MID CAP',rc:'CONSUMER',cl:'#f472b6',cp:2600,dv:0.6,nse:'TVSMOTOR',
+ tg:['EV 2-WHEELER LEADER','iQUBE GROWING','EXPORTS'],
+ bR:{B:24,SB:15,SW:8,SBR:-2,BR:-14},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:3,BR:0},mH:60,
+ wy:"EV 2-wheeler leader with iQube. Export growing. Premium Apache growing. EV transition beneficiary.",
+ sh:"EV leadership in 2-wheelers. High oil = accelerates EV adoption = positive for TVS."},
+
+// ═══════════════════════════════════════════════════════
+// FMCG / CONSUMPTION (9 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'HUL',nm:'Hindustan Unilever',sc:'FMCG Defensive',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00c8e0',cp:2360,dv:1.8,nse:'HINDUNILVR',
+ tg:['MOST DEFENSIVE','1.8% DIV','VOLUME RECOVERY'],
+ bR:{B:12,SB:10,SW:9,SBR:6,BR:2},sg:{B:.16,SB:.14,SW:.12,SBR:.14,BR:.16},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:9,SBR:9,BR:7},mH:60,
+ wy:"Most defensive consumer stock. Essential goods demand inelastic. 1.8% dividend.",
+ sh:"Best defensive equity in any shock."},
+
+{tk:'ITC',nm:'ITC Limited',sc:'FMCG Tobacco',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00d4aa',cp:465,dv:3.2,nse:'ITC',
+ tg:['3.2% DIV HIGHEST FMCG','HOTELS SPINOFF','DEFENSIVE'],
+ bR:{B:14,SB:11,SW:10,SBR:7,BR:3},sg:{B:.18,SB:.15,SW:.13,SBR:.15,BR:.17},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:9,SBR:9,BR:7},mH:60,
+ wy:"3.2% dividend. Cigarettes = inelastic cash cow. Hotels spinoff potential value unlock.",
+ sh:"Cigarette revenue is recession-proof."},
+
+{tk:'NESTLE',nm:'Nestle India',sc:'FMCG Premium',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00c8e0',cp:2260,dv:1.1,nse:'NESTLEIND',
+ tg:['MAGGI MOAT','PREMIUM PRICING','DEFENSIVE'],
+ bR:{B:13,SB:11,SW:10,SBR:7,BR:3},sg:{B:.16,SB:.14,SW:.12,SBR:.14,BR:.16},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:8,SBR:8,BR:6},mH:60,
+ wy:"Maggi moat. Premium pricing power. Nestle parent innovation pipeline.",
+ sh:"Defensive consumer. Maggi, KitKat demand recession-resistant."},
+
+{tk:'TITAN',nm:'Titan Company',sc:'Consumer Jewellery',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#4f8ef7',cp:3650,dv:0.30,nse:'TITAN',
+ tg:['TANISHQ LEADER','GOLD PLAY','TATA GROUP'],
+ bR:{B:26,SB:15,SW:7,SBR:-8,BR:-20},sg:{B:.26,SB:.22,SW:.18,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:5,SBR:1,BR:0},mH:60,
+ wy:"Tanishq = most trusted jewellery brand. Gold at $3020 boosts ASP. Wedding season demand.",
+ sh:"Consumer discretionary but gold jewellery has partial safe-haven demand."},
+
+{tk:'VARUN BEV',nm:'Varun Beverages',sc:'FMCG Beverages',ct:'IN MID CAP',rc:'CONSUMER',cl:'#00d4aa',cp:580,dv:0.3,nse:'VBL',
+ tg:['PEPSICO BOTTLER','FASTEST FMCG GROWTH','AFRICA EXPANSION'],
+ bR:{B:28,SB:18,SW:10,SBR:2,BR:-10},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"PepsiCo bottler in India + Africa. Fastest growing FMCG company. New territories, summer season boom.",
+ sh:"Summer heat wave = Varun Beverages volumes surge. Climate resilient."},
+
+{tk:'MARICO',nm:'Marico',sc:'FMCG Rural',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00c8e0',cp:680,dv:1.5,nse:'MARICO',
+ tg:['PARACHUTE MOAT','RURAL FMCG','EXPORTS'],
+ bR:{B:14,SB:11,SW:9,SBR:6,BR:2},sg:{B:.18,SB:.15,SW:.13,SBR:.15,BR:.17},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:8,SBR:8,BR:6},mH:60,
+ wy:"Parachute coconut oil = rural FMCG monopoly. Saffola = urban health food. Bangladesh and Middle East exports.",
+ sh:"Defensive FMCG. Parachute demand inelastic."},
+
+{tk:'DABUR',nm:'Dabur India',sc:'Ayurvedic FMCG',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00c8e0',cp:520,dv:1.2,nse:'DABUR',
+ tg:['AYURVEDIC MOAT','RURAL REACH','DEFENSIVE'],
+ bR:{B:14,SB:11,SW:9,SBR:6,BR:2},sg:{B:.18,SB:.15,SW:.13,SBR:.15,BR:.17},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:8,SBR:8,BR:6},mH:60,
+ wy:"Ayurvedic FMCG leader. Real juices, Chyawanprash, Hajmola. Rural India penetration. Middle East exports.",
+ sh:"Defensive FMCG. Ayurvedic positioning resilient."},
+
+{tk:'BRITANNIA',nm:'Britannia Industries',sc:'FMCG Biscuits',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#00c8e0',cp:5200,dv:5.5,nse:'BRITANNIA',
+ tg:['BISCUITS MONOPOLY','5.5% DIV','DEFENSIVE'],
+ bR:{B:14,SB:11,SW:9,SBR:6,BR:2},sg:{B:.16,SB:.14,SW:.12,SBR:.14,BR:.16},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:7,SW:9,SBR:9,BR:7},mH:60,
+ wy:"Biscuit monopoly. Good Day, Marie Gold. 5.5% dividend — one of highest in FMCG. Defensive.",
+ sh:"5.5% dividend is exceptional for large cap FMCG. Highly defensive."},
+
+{tk:'TRENT',nm:'Trent (Zudio)',sc:'Retail Fashion',ct:'IN MID CAP',rc:'CONSUMER',cl:'#00d4aa',cp:7200,dv:0.18,nse:'TRENT',
+ tg:['ZUDIO FASTEST GROWTH','TATA GROUP','150 STORES/YR'],
+ bR:{B:40,SB:18,SW:5,SBR:-14,BR:-30},sg:{B:.36,SB:.30,SW:.24,SBR:.36,BR:.44},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:7,SW:3,SBR:0,BR:0},mH:36,
+ wy:"Zudio fastest growing value fashion. 150+ stores per year. 40%+ CAGR. Bull regime only.",
+ sh:"Consumer discretionary = first hit in downturn. Bull only."},
+
+// ═══════════════════════════════════════════════════════
+// INFRASTRUCTURE / CAPITAL GOODS (10 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'L AND T',nm:'Larsen and Toubro',sc:'Engineering Infra',ct:'IN LARGE CAP',rc:'EMS',cl:'#9b59ff',cp:3650,dv:1.10,nse:'LT',
+ tg:['ORDER BOOK Rs 5L Cr','GCC BENEFITS','DATA CENTRES'],
+ bR:{B:24,SB:18,SW:10,SBR:2,BR:-12},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:9,SW:7,SBR:3,BR:0},mH:60,
+ wy:"Rs 5L Cr order book. GCC construction benefits from high oil. Data centres, nuclear, defence.",
+ sh:"GCC earns more at $101 = more construction spend."},
+
+{tk:'NTPC',nm:'NTPC Limited',sc:'Power Utility',ct:'IN LARGE CAP',rc:'SOLAR',cl:'#fbbf24',cp:375,dv:2.40,nse:'NTPC',
+ tg:['2.4% DIV','POWER UTILITY','AI POWER TAILWIND'],
+ bR:{B:16,SB:12,SW:10,SBR:5,BR:2},sg:{B:.20,SB:.17,SW:.14,SBR:.16,BR:.18},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:8,SBR:7,BR:5},mH:60,
+ wy:"Power utility — not AI company. Benefits from AI data centre power demand. 2.4% dividend. Defensive.",
+ sh:"Power demand non-negotiable. High oil makes renewables more competitive."},
+
+{tk:'POWER GRID',nm:'Power Grid Corporation',sc:'Power Transmission',ct:'IN LARGE CAP',rc:'SOLAR',cl:'#fbbf24',cp:320,dv:4.5,nse:'POWERGRID',
+ tg:['TRANSMISSION MONOPOLY','4.5% DIV','REGULATED RETURNS'],
+ bR:{B:14,SB:11,SW:9,SBR:6,BR:2},sg:{B:.16,SB:.14,SW:.12,SBR:.13,BR:.15},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:6,SW:8,SBR:8,BR:7},mH:60,
+ wy:"Electricity transmission monopoly. Regulated returns = predictable earnings. 4.5% dividend. Highly defensive utility.",
+ sh:"Regulated monopoly = most defensive infrastructure stock. Dividend very stable."},
+
+{tk:'ULTRATECH',nm:'UltraTech Cement',sc:'Cement',ct:'IN LARGE CAP',rc:'EMS',cl:'#94a3b8',cp:11800,dv:0.85,nse:'ULTRACEMCO',
+ tg:['LARGEST CEMENT','INFRA DEMAND','OIL HEADWIND NOW'],
+ bR:{B:20,SB:14,SW:8,SBR:-4,BR:-18},sg:{B:.24,SB:.20,SW:.16,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Largest cement. Housing + infra capex = structural demand. Oil at $101 raises energy costs.",
+ sh:"High oil = energy cost pressure on cement margins."},
+
+{tk:'DIXON',nm:'Dixon Technologies',sc:'Electronics EMS',ct:'IN MID CAP',rc:'EMS',cl:'#00d4aa',cp:14200,dv:0.15,nse:'DIXON',
+ tg:['EMS LEADER','PLI BENEFICIARY','CHINA+1'],
+ bR:{B:45,SB:22,SW:7,SBR:-15,BR:-35},sg:{B:.44,SB:.36,SW:.28,SBR:.42,BR:.50},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:8,SW:3,SBR:0,BR:0},mH:36,
+ wy:"Largest EMS. Apple, Samsung manufacturing. PLI + China+1 decade tailwind.",
+ sh:"GTC announcement boosts AI edge device EMS orders."},
+
+{tk:'POLYCAB',nm:'Polycab India',sc:'Cables Electricals',ct:'IN MID CAP',rc:'EMS',cl:'#00d4aa',cp:6800,dv:0.52,nse:'POLYCAB',
+ tg:['CABLES LEADER','AI DATA CENTRE CABLING','INFRA PLAY'],
+ bR:{B:34,SB:18,SW:8,SBR:-8,BR:-22},sg:{B:.30,SB:.26,SW:.20,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:8,SW:5,SBR:1,BR:0},mH:36,
+ wy:"#1 cables and wires. AI data centre cabling = new demand vertical. Housing + infra + electrification.",
+ sh:"Data centre cabling from GTC = new demand driver."},
+
+{tk:'ABB INDIA',nm:'ABB India',sc:'Power Equipment',ct:'IN MID CAP',rc:'EMS',cl:'#9b59ff',cp:7200,dv:0.5,nse:'ABB',
+ tg:['POWER EQUIPMENT','DATA CENTRE INFRA','AUTOMATION'],
+ bR:{B:26,SB:18,SW:10,SBR:2,BR:-12},sg:{B:.28,SB:.24,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"ABB global subsidiary. Power equipment for data centres, industry. Switchgear, transformers. AI data centre buildout = direct beneficiary.",
+ sh:"AI data centre electrical infrastructure = ABB wins."},
+
+{tk:'SIEMENS IN',nm:'Siemens India',sc:'Industrial Automation',ct:'IN MID CAP',rc:'EMS',cl:'#9b59ff',cp:7100,dv:0.5,nse:'SIEMENS',
+ tg:['INDUSTRIAL AUTOMATION','ENERGY EQUIPMENT','CAPEX PLAY'],
+ bR:{B:24,SB:17,SW:10,SBR:2,BR:-12},sg:{B:.26,SB:.22,SW:.17,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"Siemens global subsidiary. Industrial automation, energy equipment. Capex cycle beneficiary.",
+ sh:"Capex cycle = Siemens revenues. Defensive blue-chip industrial."},
+
+{tk:'CUMMINS IN',nm:'Cummins India',sc:'Engines Gensets',ct:'IN MID CAP',rc:'EMS',cl:'#9b59ff',cp:3400,dv:1.8,nse:'CUMMINSIND',
+ tg:['GENSET LEADER','DATA CENTRE BACKUP','1.8% DIV'],
+ bR:{B:22,SB:16,SW:10,SBR:4,BR:-6},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.26},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Diesel generator sets for data centres and industry. Every AI data centre needs backup power from Cummins gensets.",
+ sh:"AI data centre backup power = Cummins wins. 1.8% dividend."},
+
+{tk:'KEC INTL',nm:'KEC International',sc:'Power Transmission',ct:'IN MID CAP',rc:'EMS',cl:'#9b59ff',cp:950,dv:0.4,nse:'KEC',
+ tg:['POWER TRANSMISSION','RAILWAYS','GLOBAL PRESENCE'],
+ bR:{B:26,SB:18,SW:10,SBR:2,BR:-12},sg:{B:.28,SB:.24,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:3,BR:0},mH:60,
+ wy:"Power transmission towers globally. Railway electrification in India. Strong order book from Middle East (high oil = GCC infrastructure spending).",
+ sh:"GCC construction benefits from high oil. Railway electrification structural."},
+
+// ═══════════════════════════════════════════════════════
+// CHEMICALS (7 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'DEEPAK NIT',nm:'Deepak Nitrite',sc:'Specialty Chemicals',ct:'IN MID CAP',rc:'CHEM',cl:'#00d4aa',cp:2680,dv:0.48,nse:'DEEPAKNTR',
+ tg:['PHENOL LEADER','CHINA+1','OIL HEADWIND NOW'],
+ bR:{B:36,SB:16,SW:6,SBR:-10,BR:-26},sg:{B:.34,SB:.28,SW:.22,SBR:.32,BR:.42},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:9,SB:7,SW:4,SBR:1,BR:0},mH:36,
+ wy:"Largest phenol producer. China+1 tailwind. Oil at $101 = input cost pressure right now.",
+ sh:"HIGH OIL = NEGATIVE. Input costs up. Hold off until oil corrects."},
+
+{tk:'PI INDS',nm:'PI Industries',sc:'Agrochemicals Export',ct:'IN MID CAP',rc:'CHEM',cl:'#00d4aa',cp:3850,dv:0.40,nse:'PIIND',
+ tg:['EXPORT AGROCHEMICAL','USD REVENUE','HIGH ROE 28%+'],
+ bR:{B:28,SB:18,SW:10,SBR:4,BR:-8},sg:{B:.28,SB:.24,SW:.18,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:7,SBR:4,BR:1},mH:60,
+ wy:"Leading agrochemical exporter. Custom synthesis for global innovators. USD revenues. ROE 28%+.",
+ sh:"Food security structural. USD revenue benefits from rupee weakness."},
+
+{tk:'NAVIN FLUOR',nm:'Navin Fluorine',sc:'Specialty Fluorochemicals',ct:'IN MID CAP',rc:'CHEM',cl:'#00d4aa',cp:3200,dv:0.4,nse:'NAVINFLUOR',
+ tg:['FLUOROCHEMICALS','CRAMS BUSINESS','SPECIALTY HIGH MARGIN'],
+ bR:{B:30,SB:16,SW:7,SBR:-6,BR:-20},sg:{B:.32,SB:.26,SW:.20,SBR:.28,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:5,SBR:2,BR:0},mH:36,
+ wy:"Specialty fluorochemicals for pharma, agro, refrigerants. CRAMS business high margin. China+1 tailwind.",
+ sh:"Oil headwind as feedstock but less than Deepak. China+1 structural positive."},
+
+{tk:'AARTI INDS',nm:'Aarti Industries',sc:'Benzene Chain Chemicals',ct:'IN MID CAP',rc:'CHEM',cl:'#00d4aa',cp:380,dv:0.5,nse:'AARTIIND',
+ tg:['BENZENE CHAIN','EXPORTS 50%','CHINA+1'],
+ bR:{B:32,SB:16,SW:6,SBR:-8,BR:-22},sg:{B:.34,SB:.28,SW:.22,SBR:.30,BR:.40},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:4,SBR:1,BR:0},mH:36,
+ wy:"Benzene derivatives chain. Pharma and dye intermediates. 50% exports. China+1 sourcing shift.",
+ sh:"Oil headwind on benzene feedstock. China+1 structural positive."},
+
+{tk:'CLEAN SCIENCE',nm:'Clean Science & Technology',sc:'High Margin Specialty',ct:'IN SMALL CAP',rc:'CHEM',cl:'#ff6b35',cp:1200,dv:0.8,nse:'CLEAN',
+ tg:['70%+ EBITDA MARGIN','GREEN CHEMISTRY','EXPORT ONLY'],
+ bR:{B:28,SB:14,SW:5,SBR:-8,BR:-22},sg:{B:.34,SB:.28,SW:.22,SBR:.32,BR:.42},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:6,SW:3,SBR:1,BR:0},mH:36,
+ wy:"Highest EBITDA margins in Indian chemicals (70%+). Green chemistry process — lower input costs. Export focused.",
+ sh:"High margins = resilient even with oil pressure. Export focused = rupee weakness positive."},
+
+{tk:'SRF',nm:'SRF Limited',sc:'Technical Textiles Chemicals',ct:'IN LARGE CAP',rc:'CHEM',cl:'#00d4aa',cp:2400,dv:0.6,nse:'SRF',
+ tg:['FLUOROCHEMICALS','TECHNICAL TEXTILES','PACKAGING'],
+ bR:{B:26,SB:14,SW:6,SBR:-6,BR:-20},sg:{B:.30,SB:.25,SW:.19,SBR:.28,BR:.36},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:5,SBR:2,BR:0},mH:36,
+ wy:"Diversified — fluorochemicals, technical textiles, packaging films, chemicals. Multiple growth drivers.",
+ sh:"Diversification reduces single-factor risk. Fluorochemicals benefit from China+1."},
+
+{tk:'PIDILITE',nm:'Pidilite Industries',sc:'Specialty Adhesives',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#9b59ff',cp:2800,dv:0.5,nse:'PIDILITIND',
+ tg:['FEVICOL MONOPOLY','CONSTRUCTION LINKED','MOAT BUSINESS'],
+ bR:{B:18,SB:13,SW:9,SBR:4,BR:-4},sg:{B:.20,SB:.17,SW:.14,SBR:.17,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Fevicol monopoly — 70%+ adhesive market share. Construction boom = Pidilite wins. Pricing power. No real competition.",
+ sh:"Construction linked but Fevicol demand is near-inelastic."},
+
+// ═══════════════════════════════════════════════════════
+// REAL ESTATE (5 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'DLF',nm:'DLF Limited',sc:'Real Estate',ct:'IN LARGE CAP',rc:'REIT',cl:'#a78bfa',cp:870,dv:0.46,nse:'DLF',
+ tg:['LARGEST REALTY','RATE CUT PLAY','LUXURY DEMAND'],
+ bR:{B:28,SB:16,SW:6,SBR:-10,BR:-25},sg:{B:.32,SB:.28,SW:.24,SBR:.30,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:5,SBR:1,BR:0},mH:60,
+ wy:"Largest listed realty. RBI cuts directly boost home loan demand. Luxury HNI segment income-inelastic.",
+ sh:"RBI cutting is positive. Geo uncertainty delays big ticket purchases."},
+
+{tk:'PRESTIGE',nm:'Prestige Estates',sc:'Real Estate South',ct:'IN MID CAP',rc:'REIT',cl:'#a78bfa',cp:1650,dv:0.3,nse:'PRESTIGE',
+ tg:['SOUTH INDIA LEADER','RATE CUT PLAY','BENGALURU FOCUS'],
+ bR:{B:28,SB:16,SW:6,SBR:-10,BR:-24},sg:{B:.32,SB:.28,SW:.22,SBR:.30,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:5,SBR:1,BR:0},mH:60,
+ wy:"South India realty leader. Bengaluru IT office boom = residential demand. Rate cut = home loan EMI falls.",
+ sh:"Bengaluru tech sector = residential demand. Rate cuts = direct catalyst."},
+
+{tk:'GODREJ PROP',nm:'Godrej Properties',sc:'Real Estate Premium',ct:'IN MID CAP',rc:'REIT',cl:'#a78bfa',cp:2900,dv:0.1,nse:'GODREJPROP',
+ tg:['GODREJ BRAND','PREMIUM RESIDENTIAL','NCR + MUMBAI'],
+ bR:{B:30,SB:16,SW:6,SBR:-10,BR:-25},sg:{B:.34,SB:.28,SW:.22,SBR:.30,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:5,SBR:1,BR:0},mH:60,
+ wy:"Godrej brand = premium positioning. NCR and Mumbai markets. Land bank being monetised.",
+ sh:"Rate cuts primary catalyst. Godrej brand = premium segment = HNI demand."},
+
+{tk:'OBEROI REAL',nm:'Oberoi Realty',sc:'Ultra Luxury Realty',ct:'IN MID CAP',rc:'REIT',cl:'#a78bfa',cp:1850,dv:0.2,nse:'OBEROIRLTY',
+ tg:['ULTRA LUXURY MUMBAI','HIGH MARGIN','GOREGAON LAND BANK'],
+ bR:{B:26,SB:14,SW:6,SBR:-8,BR:-22},sg:{B:.28,SB:.24,SW:.20,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:5,SBR:2,BR:0},mH:60,
+ wy:"Ultra luxury Mumbai residential. Massive Goregaon land bank. HNI demand = income inelastic. Highest margins in realty.",
+ sh:"Ultra luxury = most immune to rate cycles. HNI demand = recession-resistant."},
+
+{tk:'ADANI PORTS',nm:'Adani Ports & SEZ',sc:'Ports Logistics',ct:'IN LARGE CAP',rc:'EMS',cl:'#9b59ff',cp:1380,dv:0.6,nse:'ADANIPORTS',
+ tg:['LARGEST PORT OPERATOR','LOGISTICS PLAY','SHIPPING BOOM'],
+ bR:{B:20,SB:15,SW:9,SBR:2,BR:-10},sg:{B:.26,SB:.22,SW:.18,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:6,SBR:3,BR:1},mH:60,
+ wy:"Largest port operator India. Shipping rerouting from Red Sea = more Indian port calls. Logistics infrastructure monopoly.",
+ sh:"Iran war = Hormuz risk = more ships via Cape = more Indian port traffic."},
+
+// ═══════════════════════════════════════════════════════
+// PSU / ENERGY (7 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'ONGC',nm:'ONGC',sc:'Oil Gas PSU',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:270,dv:4.2,nse:'ONGC',
+ tg:['4.2% DIV HIGHEST','OIL PRICE PLAY','GEO+ DIRECTLY'],
+ bR:{B:14,SB:10,SW:8,SBR:5,BR:2},sg:{B:.26,SB:.22,SW:.18,SBR:.20,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:6,SW:7,SBR:8,BR:7},mH:60,
+ wy:"Oil at $101 = direct earnings boost. 4.2% dividend. One of few stocks that benefits from Iran war.",
+ sh:"HIGH OIL IS POSITIVE. Iran war = ONGC earnings surge."},
+
+{tk:'RELIANCE',nm:'Reliance Industries',sc:'Energy Conglomerate',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:1320,dv:0.45,nse:'RELIANCE',
+ tg:['JIO + RETAIL + REFINING','OIL HELPS REFINING','DIVERSIFIED'],
+ bR:{B:16,SB:12,SW:8,SBR:0,BR:-14},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.28},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:6,SBR:3,BR:1},mH:60,
+ wy:"Conglomerate: Jio + Retail + Refining. High oil HELPS refining margins. Jio ARPU rising.",
+ sh:"High oil actually helps refining. Jio and Retail diversify."},
+
+{tk:'COAL INDIA',nm:'Coal India',sc:'Coal Mining PSU',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:420,dv:7.0,nse:'COALINDIA',
+ tg:['7% DIV HIGHEST LARGE CAP','MONOPOLY','ENERGY SECURITY'],
+ bR:{B:10,SB:8,SW:7,SBR:5,BR:3},sg:{B:.20,SB:.17,SW:.14,SBR:.16,BR:.18},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:4,SB:5,SW:7,SBR:8,BR:8},mH:60,
+ wy:"Coal mining monopoly. 7% dividend — one of highest in large cap. Energy security = govt will support. Oil at $101 = more coal substitution demand.",
+ sh:"High oil = coal substitution demand rises. 7% dividend is exceptional."},
+
+{tk:'NHPC',nm:'NHPC',sc:'Hydro Power PSU',ct:'IN LARGE CAP',rc:'SOLAR',cl:'#fbbf24',cp:90,dv:5.0,nse:'NHPC',
+ tg:['HYDRO POWER','5% DIV','CLEAN ENERGY PSU'],
+ bR:{B:14,SB:11,SW:9,SBR:6,BR:2},sg:{B:.18,SB:.15,SW:.13,SBR:.15,BR:.17},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:6,SW:8,SBR:8,BR:6},mH:60,
+ wy:"Hydro power = zero fuel cost. 5% dividend. Clean energy = policy tailwind. High oil makes hydro more competitive.",
+ sh:"Zero fuel cost = completely immune to oil price. 5% dividend defensive."},
+
+{tk:'GAIL',nm:'GAIL India',sc:'Gas Transmission',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:195,dv:3.5,nse:'GAIL',
+ tg:['GAS PIPELINE MONOPOLY','3.5% DIV','LNG PLAY'],
+ bR:{B:14,SB:10,SW:8,SBR:4,BR:1},sg:{B:.22,SB:.18,SW:.15,SBR:.18,BR:.22},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:6,SW:7,SBR:7,BR:5},mH:60,
+ wy:"Gas transmission monopoly. LNG terminal growing. 3.5% dividend. City gas distribution growing. Petrochemical segment.",
+ sh:"Gas infrastructure monopoly. Dividend stable."},
+
+{tk:'IOC',nm:'Indian Oil Corporation',sc:'Refining Marketing',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:145,dv:8.0,nse:'IOC',
+ tg:['8% DIV EXCEPTIONAL','REFINING GIANT','PSU GOVT BACKED'],
+ bR:{B:10,SB:7,SW:6,SBR:3,BR:0},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.26},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:4,SB:5,SW:6,SBR:6,BR:5},mH:60,
+ wy:"Largest refiner and marketer. 8% dividend — one of highest in any large cap. Govt backing. Fuel retail network monopoly.",
+ sh:"8% dividend is exceptional. Govt backing provides floor. Risk: under-recovery if govt caps fuel prices."},
+
+{tk:'WAAREE NRG',nm:'Waaree Energies',sc:'Solar Renewables',ct:'IN SMALL CAP',rc:'SOLAR',cl:'#ff6b35',cp:2890,dv:0.00,nse:'WAAREEENER',
+ tg:['SOLAR MODULES','US IRA EXPORT','OIL $101 HELPS'],
+ bR:{B:46,SB:20,SW:5,SBR:-16,BR:-38},sg:{B:.42,SB:.36,SW:.28,SBR:.42,BR:.52},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:10,SB:7,SW:2,SBR:0,BR:0},mH:36,
+ wy:"Largest solar module maker. US IRA driving demand. Oil at $101 STRENGTHENS renewable economics.",
+ sh:"US trade policy on solar tariffs is risk. High oil strengthens renewable case."},
+
+// ═══════════════════════════════════════════════════════
+// TELECOM (3 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'BHARTI ARTL',nm:'Bharti Airtel',sc:'Telecom',ct:'IN LARGE CAP',rc:'TELECOM',cl:'#4f8ef7',cp:1680,dv:0.42,nse:'BHARTIARTL',
+ tg:['ARPU GROWTH','5G LEADER','AFRICA'],
+ bR:{B:22,SB:16,SW:10,SBR:3,BR:-8},sg:{B:.24,SB:.20,SW:.16,SBR:.20,BR:.28},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:9,SW:8,SBR:5,BR:2},mH:60,
+ wy:"Best telecom. ARPU doubling. 5G monetisation starting. Africa diversification.",
+ sh:"Telecom most shock-resilient. People pay mobile bills regardless."},
+
+{tk:'INDUS TOWERS',nm:'Indus Towers',sc:'Telecom Infrastructure',ct:'IN LARGE CAP',rc:'TELECOM',cl:'#4f8ef7',cp:340,dv:2.5,nse:'INDUSTOWER',
+ tg:['TOWER MONOPOLY','2.5% DIV','PASSIVE INFRA'],
+ bR:{B:16,SB:13,SW:10,SBR:5,BR:1},sg:{B:.18,SB:.15,SW:.12,SBR:.14,BR:.16},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:8,SBR:7,BR:5},mH:60,
+ wy:"Passive telecom infrastructure. Tower rental = recurring income regardless of telecom competition. 2.5% dividend.",
+ sh:"Passive infrastructure = most defensive telecom play. Revenue from all operators."},
+
+{tk:'VODAFONE ID',nm:'Vodafone Idea',sc:'Telecom Turnaround',ct:'IN SMALL CAP',rc:'TELECOM',cl:'#ff4757',cp:8,dv:0.0,nse:'IDEA',
+ tg:['SPECULATIVE TURNAROUND','AGR RESOLUTION','HIGH RISK HIGH REWARD'],
+ bR:{B:80,SB:20,SW:-10,SBR:-50,BR:-80},sg:{B:.80,SB:.70,SW:.60,SBR:.80,BR:.90},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:5,SB:2,SW:1,SBR:0,BR:0},mH:12,
+ wy:"Pure speculative turnaround. Government equity means no near-term bankruptcy. If AGR resolved = multi-bagger. If fails = near zero. Very small position only.",
+ sh:"EXTREMELY HIGH RISK. Only for aggressive investors with tiny allocation. Binary outcome."},
+
+// ═══════════════════════════════════════════════════════
+// LOGISTICS (3 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'DELHIVERY',nm:'Delhivery',sc:'E-commerce Logistics',ct:'IN MID CAP',rc:'CONSUMER',cl:'#9b59ff',cp:350,dv:0.0,nse:'DELHIVERY',
+ tg:['ECOMMERCE LOGISTICS','TECH-FIRST','INDIA CONSUMPTION PLAY'],
+ bR:{B:30,SB:18,SW:8,SBR:-5,BR:-20},sg:{B:.36,SB:.30,SW:.22,SBR:.32,BR:.42},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:5,SBR:2,BR:0},mH:36,
+ wy:"Tech-first logistics. E-commerce boom = Delhivery wins. India consumption growth = structural tailwind.",
+ sh:"E-commerce growth structural. Tech efficiency = margin expansion story."},
+
+{tk:'CONTAINER COR',nm:'Container Corporation',sc:'Rail Container Logistics',ct:'IN LARGE CAP',rc:'EMS',cl:'#9b59ff',cp:820,dv:2.0,nse:'CONCOR',
+ tg:['RAIL MONOPOLY','EXPORTS LINKED','2% DIV'],
+ bR:{B:16,SB:12,SW:8,SBR:2,BR:-8},sg:{B:.22,SB:.18,SW:.14,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:6,SW:6,SBR:4,BR:2},mH:60,
+ wy:"Railway container transport monopoly. Exports boom = more container volumes. Rupee weakness = exports competitive = more volume.",
+ sh:"Rupee weakness = export competitiveness = more container volumes for CONCOR."},
+
+{tk:'BLUE DART',nm:'Blue Dart Express',sc:'Express Logistics',ct:'IN MID CAP',rc:'CONSUMER',cl:'#9b59ff',cp:7200,dv:1.0,nse:'BLUEDART',
+ tg:['FEDEX PARTNERSHIP','PREMIUM EXPRESS','ECOMMERCE'],
+ bR:{B:18,SB:13,SW:8,SBR:2,BR:-8},sg:{B:.22,SB:.18,SW:.14,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:7,SW:6,SBR:4,BR:2},mH:60,
+ wy:"Premium express logistics. FedEx partnership. E-commerce premium segment. India business growing.",
+ sh:"E-commerce premium logistics. FedEx global network advantage."},
+
+// ═══════════════════════════════════════════════════════
+// METALS (4 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'TATA STEEL',nm:'Tata Steel',sc:'Steel Manufacturer',ct:'IN LARGE CAP',rc:'EMS',cl:'#94a3b8',cp:145,dv:0.5,nse:'TATASTEEL',
+ tg:['GLOBAL STEEL','UK OPERATIONS','CAPEX CYCLE'],
+ bR:{B:22,SB:12,SW:4,SBR:-10,BR:-28},sg:{B:.36,SB:.30,SW:.22,SBR:.34,BR:.44},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:6,SW:3,SBR:0,BR:0},mH:36,
+ wy:"Global steel with India + UK + Netherlands operations. Infrastructure capex = steel demand. UK operations restructuring.",
+ sh:"Highly cyclical. Infrastructure capex is primary driver. UK losses are drag."},
+
+{tk:'JSW STEEL',nm:'JSW Steel',sc:'Steel Manufacturer',ct:'IN LARGE CAP',rc:'EMS',cl:'#94a3b8',cp:960,dv:0.5,nse:'JSWSTEEL',
+ tg:['LARGEST INDIAN STEEL','CAPEX CYCLE','INDIA DOMESTIC'],
+ bR:{B:24,SB:13,SW:5,SBR:-8,BR:-25},sg:{B:.34,SB:.28,SW:.21,SBR:.32,BR:.42},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:3,SBR:0,BR:0},mH:36,
+ wy:"Largest Indian steel. India domestic focus = less global risk than Tata Steel. Infra and housing = demand drivers.",
+ sh:"Highly cyclical. India housing and infra boom = demand. China dumping = risk."},
+
+{tk:'HINDALCO',nm:'Hindalco Industries',sc:'Aluminium',ct:'IN LARGE CAP',rc:'EMS',cl:'#94a3b8',cp:650,dv:0.5,nse:'HINDALCO',
+ tg:['ALUMINIUM + NOVELIS','GLOBAL EXPOSURE','EV DEMAND'],
+ bR:{B:20,SB:12,SW:5,SBR:-6,BR:-22},sg:{B:.30,SB:.25,SW:.19,SBR:.28,BR:.38},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:6,SW:4,SBR:1,BR:0},mH:36,
+ wy:"Aluminium + Novelis (global rolled products). EVs need aluminium. Automotive lightweighting trend. Global exposure.",
+ sh:"EV demand for aluminium is structural positive. Cyclical but quality company."},
+
+{tk:'VEDANTA',nm:'Vedanta',sc:'Diversified Metals',ct:'IN LARGE CAP',rc:'ENERGY',cl:'#ffa726',cp:460,dv:15.0,nse:'VEDL',
+ tg:['15% DIV EXCEPTIONAL','ZINC SILVER COPPER','HIGH RISK HIGH REWARD'],
+ bR:{B:18,SB:10,SW:5,SBR:-8,BR:-25},sg:{B:.40,SB:.34,SW:.26,SBR:.38,BR:.50},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:6,SB:5,SW:4,SBR:2,BR:0},mH:36,
+ wy:"Diversified metals — zinc, aluminium, copper, iron ore, silver. 15% dividend — highest in any large cap. High debt = risk.",
+ sh:"15% dividend but debt risk. Anil Agarwal promoter credibility concern. High risk high reward."},
+
+// ═══════════════════════════════════════════════════════
+// INSURANCE / FINTECH (4 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'HDFC LIFE',nm:'HDFC Life Insurance',sc:'Life Insurance',ct:'IN LARGE CAP',rc:'BANK',cl:'#4f8ef7',cp:720,dv:0.3,nse:'HDFCLIFE',
+ tg:['LIFE INSURANCE LEADER','SIP PREMIUM GROWTH','DEMOGRAPHIC PLAY'],
+ bR:{B:20,SB:14,SW:9,SBR:3,BR:-6},sg:{B:.22,SB:.18,SW:.15,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"Largest private life insurer. India underinsured = structural growth. SIP-based premium model. Demographic dividend = rising insurance demand.",
+ sh:"Insurance = long-term structural. Rate cut = VIP products more attractive."},
+
+{tk:'SBI LIFE',nm:'SBI Life Insurance',sc:'Life Insurance PSU',ct:'IN LARGE CAP',rc:'BANK',cl:'#00c8e0',cp:1650,dv:0.2,nse:'SBILIFE',
+ tg:['SBI BANCASSURANCE','RURAL REACH','LARGEST NETWORK'],
+ bR:{B:20,SB:14,SW:9,SBR:3,BR:-6},sg:{B:.22,SB:.18,SW:.15,SBR:.18,BR:.24},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:7,SBR:5,BR:2},mH:60,
+ wy:"SBI bancassurance = 22,000+ branch distribution. Rural India insurance penetration growing. Govt-backed parent.",
+ sh:"SBI distribution = unmatched rural reach for insurance."},
+
+{tk:'BAJAJ FINSERV',nm:'Bajaj Finserv',sc:'Insurance NBFC Holding',ct:'IN LARGE CAP',rc:'BANK',cl:'#ffa726',cp:2100,dv:0.05,nse:'BAJAJFINSV',
+ tg:['HOLDING COMPANY','INSURANCE + NBFC','BAJAJ ALLIANZ'],
+ bR:{B:22,SB:15,SW:8,SBR:-4,BR:-16},sg:{B:.26,SB:.22,SW:.17,SBR:.24,BR:.32},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:7,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Holding company for Bajaj Finance + Bajaj Allianz Life + Bajaj Allianz General. One stock = 3 financial businesses.",
+ sh:"Rate cuts benefit all three underlying businesses simultaneously."},
+
+{tk:'CDSL',nm:'CDSL (Central Depository)',sc:'Financial Infrastructure',ct:'IN MID CAP',rc:'BANK',cl:'#4f8ef7',cp:1650,dv:0.8,nse:'CDSL',
+ tg:['DEMAT ACCOUNTS GROWING','MARKET PROXY','MONOPOLY INFRA'],
+ bR:{B:28,SB:18,SW:10,SBR:0,BR:-15},sg:{B:.30,SB:.26,SW:.20,SBR:.26,BR:.34},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:8,SB:8,SW:6,SBR:2,BR:0},mH:60,
+ wy:"Central depository for securities. Every new demat account = CDSL revenue. Retail investor participation structural growth story.",
+ sh:"Bull markets = more demat accounts = more CDSL revenue. Market participation is structural."},
+
+// ═══════════════════════════════════════════════════════
+// AVIATION / HOSPITALITY (2 stocks)
+// ═══════════════════════════════════════════════════════
+{tk:'INTERGLOBE',nm:'IndiGo (InterGlobe Aviation)',sc:'Aviation',ct:'IN LARGE CAP',rc:'CONSUMER',cl:'#ff4757',cp:4800,dv:0.0,nse:'INDIGO',
+ tg:['MARKET SHARE 60%','OIL HEADWIND NOW','INDIA TRAVEL BOOM'],
+ bR:{B:22,SB:12,SW:4,SBR:-15,BR:-35},sg:{B:.34,SB:.28,SW:.22,SBR:.32,BR:.44},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:6,SW:3,SBR:0,BR:0},mH:36,
+ wy:"60% aviation market share. India travel growing structurally. But fuel = 35% of costs. Oil at $101 is significant headwind right now.",
+ sh:"HIGH OIL IS DIRECTLY NEGATIVE. Every $10 oil rise = Rs 2000+ Cr hit to IndiGo. Avoid in current oil shock."},
+
+{tk:'INDIAN HOTELS',nm:'Indian Hotels (Taj)',sc:'Luxury Hotels',ct:'IN MID CAP',rc:'CONSUMER',cl:'#9b59ff',cp:740,dv:0.3,nse:'INDHOTEL',
+ tg:['TAJ BRAND','LEISURE TRAVEL BOOM','PREMIUM PRICING'],
+ bR:{B:22,SB:15,SW:9,SBR:2,BR:-8},sg:{B:.26,SB:.22,SW:.17,SBR:.22,BR:.30},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:7,SW:6,SBR:3,BR:1},mH:60,
+ wy:"Taj brand = premium hotel monopoly. India leisure travel growing. G20 and global events = hotel demand. Geopolitical = some Middle East tourist diversion to India.",
+ sh:"Geopolitical = Middle East tourism redirected to India. Premium hospitality resilient."},
+
+// ═══════════════════════════════════════════════════════
+// INSTRUMENTS (7 existing)
+// ═══════════════════════════════════════════════════════
+{tk:'GOLD ETF',nm:'Nippon India Gold ETF',sc:'Commodity Gold',ct:'IN GOLD ETF',rc:'GOLD',cl:'#ffa726',cp:0,dv:0.0,nse:'GOLDBEES',
+ tg:['SAFE HAVEN','RUPEE HEDGE','NEG REAL RATE'],
+ bR:{B:4,SB:6,SW:9,SBR:12,BR:16},sg:{B:.14,SB:.13,SW:.12,SBR:.13,BR:.14},
+ tM:{s:.70,l:.70},tS:'Slab 30%',tL:'Slab 30%',rF:{B:3,SB:5,SW:8,SBR:9,BR:10},mH:60,
+ wy:"Gold 13% annual INR returns. Negative real rate = bullish. Rupee at 92 amplifies. Iran war = flight to safety.",
+ sh:"IDEAL IN CURRENT SHOCK. Every factor aligned.",nse:'GOLDBEES'},
+
+{tk:'SILVER ETF',nm:'Nippon India Silver ETF',sc:'Commodity Silver',ct:'IN SILVER ETF',rc:'SILVER',cl:'#94a3b8',cp:0,dv:0.0,nse:'SILVERBEES',
+ tg:['EV AND SOLAR DEMAND','SAFE HAVEN+INDUSTRIAL'],
+ bR:{B:18,SB:12,SW:8,SBR:4,BR:5},sg:{B:.28,SB:.24,SW:.20,SBR:.22,BR:.24},
+ tM:{s:.70,l:.70},tS:'Slab 30%',tL:'Slab 30%',rF:{B:7,SB:7,SW:6,SBR:5,BR:5},mH:60,
+ wy:"Solar panels use 10g silver each. EVs use 20-50g. Safe haven + industrial.",
+ sh:"Mixed response. Rises with gold but PMI below 50 is headwind.",nse:'SILVERBEES'},
+
+{tk:'EMBASSY REIT',nm:'Embassy Office Parks REIT',sc:'Commercial RE',ct:'IN REIT',rc:'REIT',cl:'#a78bfa',cp:0,dv:8.5,nse:'EMBASSY',
+ tg:['8.5% DIV YIELD','GOOGLE MICROSOFT TENANT','RATE CUT PLAY'],
+ bR:{B:14,SB:10,SW:8,SBR:5,BR:2},sg:{B:.18,SB:.15,SW:.12,SBR:.14,BR:.16},
+ tM:{s:.70,l:.78},tS:'Div 30% + LTCG',tL:'Div 30% + LTCG',rF:{B:6,SB:7,SW:7,SBR:5,BR:3},mH:60,
+ wy:"45M sqft Grade A offices. Google, Microsoft tenants. RBI cuts = valuation expansion.",
+ sh:"Rate cuts positive. GCC expansion filling offices.",nse:'EMBASSY'},
+
+{tk:'RBI G-SEC',nm:'GOI 10Y Bond',sc:'Govt Bond',ct:'IN G-SEC',rc:'GSEC',cl:'#00c8e0',cp:0,dv:7.1,nse:null,
+ tg:['ZERO DEFAULT RISK','7.1% FIXED','RBI DIRECT'],
+ bR:{B:7.1,SB:7.1,SW:7.1,SBR:7.1,BR:7.1},sg:{B:.03,SB:.03,SW:.03,SBR:.03,BR:.03},
+ tM:{s:.70,l:.70},tS:'Slab 30%',tL:'Slab 30%',rF:{B:3,SB:4,SW:7,SBR:9,BR:10},mH:60,
+ wy:"Zero default risk. 7.1% fixed. rbiretaildirect.org.in at ZERO commission. RBI cutting = bond prices rise.",
+ sh:"Prices rise in flight-to-safety.",nse:null},
+
+{tk:'CORP BOND MF',nm:'Short Duration Bond Fund',sc:'Corp Bonds',ct:'IN CORP BOND',rc:'GSEC',cl:'#f472b6',cp:0,dv:8.8,nse:null,
+ tg:['AAA/AA RATED','8.8% GROSS','1-2YR DURATION'],
+ bR:{B:8.8,SB:8.8,SW:8.8,SBR:8.4,BR:7.8},sg:{B:.04,SB:.04,SW:.04,SBR:.05,BR:.06},
+ tM:{s:.70,l:.70},tS:'Slab 30%',tL:'Slab 30%',rF:{B:4,SB:5,SW:7,SBR:8,BR:8},mH:60,
+ wy:"AAA/AA corporate bonds 1-2yr maturity. 8.8% gross = 6.2% after 30% tax.",
+ sh:"More stable than equity in shocks.",nse:null},
+
+{tk:'ARB FUND',nm:'Arbitrage Fund (Nippon/HDFC)',sc:'Market Neutral',ct:'IN HYBRID',rc:'ARB',cl:'#00d4aa',cp:0,dv:0.0,nse:null,
+ tg:['EQUITY TAX','NEAR-ZERO RISK','ALL REGIMES'],
+ bR:{B:7.8,SB:7.8,SW:7.5,SBR:7.5,BR:7.5},sg:{B:.02,SB:.02,SW:.02,SBR:.02,BR:.02},
+ tM:{s:.80,l:.875},tS:'STCG 20%',tL:'LTCG 12.5%',rF:{B:7,SB:8,SW:9,SBR:10,BR:10},mH:60,
+ wy:"Market-neutral arbitrage. ~7.5% in all regimes. EQUITY TAX saves 10-17.5% vs FD at 30% bracket.",
+ sh:"Arb spreads WIDEN in high VIX — returns improve during shocks.",nse:null},
+
+{tk:'HDFC LIQ',nm:'HDFC Liquid Fund',sc:'Overnight Debt',ct:'IN LIQUID',rc:'LIQUID',cl:'#00c8e0',cp:0,dv:6.8,nse:null,
+ tg:['INSTANT EXIT T+0','6.8% GROSS','CAPITAL SAFE'],
+ bR:{B:6.8,SB:6.8,SW:6.8,SBR:6.8,BR:6.8},sg:{B:.005,SB:.005,SW:.005,SBR:.005,BR:.005},
+ tM:{s:.70,l:.70},tS:'Slab 30%',tL:'Slab 30%',rF:{B:2,SB:3,SW:5,SBR:8,BR:10},mH:60,
+ wy:"Safest MF. Overnight RBI instruments only. T+0 instant exit.",
+ sh:"Completely stable in every shock. Dry powder to re-enter at bottom.",nse:null},
+
+];
+
+// Combine universes
+var ALL_U=US_U.concat(IN_U);
+
+// ── REGIME KEY ─────────────────────────────────────────────────
+function rk(reg){return{BULL:'B',SOFT_BULL:'SB',SIDEWAYS:'SW',SOFT_BEAR:'SBR',BEAR:'BR'}[reg]||'SW';}
+function netRet(gross,inst,holdM){return gross*(holdM>=12?inst.tM.l:inst.tM.s);}
+function taxNote(inst,holdM){return holdM>=12?inst.tL:inst.tS;}
+
+// ── SCORING ───────────────────────────────────────────────────
+// Currency overlay for US instruments
+var USD_INR_EXPECTED_CHANGE=0.03; // expect 3% more rupee weakness over 12M
+
+function score(inst,macro,holdM,dominos,aiSent){
+  var k=rk(macro.reg);
+  var isUS=inst.country==='US';
+  var grossBase=(inst.bR[k]||0)+(macro.adj[inst.rc]||0);
+  // Currency overlay for US stocks
+  var fxOverlay=isUS?USD_INR_EXPECTED_CHANGE*100*(holdM/12):0;
+  // IND Money friction for US stocks (1.5% round trip)
+  var friction=isUS?-1.5:0;
+  // Domino adjustment
+  var domAdj=0,domReasons=[];
+  if(dominos&&dominos[inst.tk]){domAdj=dominos[inst.tk].adj;domReasons=dominos[inst.tk].reasons;}
+  // AI sentiment
+  var aiAdj=0,aiReason='',aiEvent='';
+  if(aiSent&&aiSent[inst.tk]){aiAdj=(aiSent[inst.tk].score||0)*1.5;aiReason=aiSent[inst.tk].reason||'';aiEvent=aiSent[inst.tk].event||'';}
+  // Valuation
+  var val=getVal(inst.tk);var valAdj=val.adj;
+  var totalGross=grossBase+domAdj+aiAdj+valAdj+fxOverlay+friction+(inst.dv||0);
+  var divNet=(inst.dv||0)*0.70;
+  var netAnnual=netRet(grossBase+domAdj+aiAdj+valAdj+fxOverlay+friction,inst,holdM)+divNet;
+  var sig2=inst.sg[k]||0.15;
+  var holdYr=holdM/12;
+  var useBlended=holdM>=12&&!isUS; // US uses different regime logic
+  var blended=null;
+  if(useBlended)blended=blendedReturn(inst,macro.reg,holdM,macro.adj);
+  var netForScore=useBlended?blended.annNet:netAnnual;
+  var holdNetReturn=useBlended?blended.holdNet*100:netAnnual*holdYr;
+  var sigForScore=useBlended?(blended.wSig||sig2):sig2;
+  var rfNet=6.8*0.70;
+  var excess=netForScore-rfNet;
+  var sharpe=sigForScore>0.01?(excess/100)/sigForScore:excess/10;
+  var regFitBase=(inst.rF[k]||0)/10;
+  var regFitScore=useBlended?function(){var rf=0;RNAMES.forEach(function(r,ri){rf+=(blended.finalDist[r]||0)*((inst.rF[RKEYS[ri]]||0)/10);});return rf;}():regFitBase;
+  var ras=Math.max(0,(sharpe*0.6+regFitScore*0.4)*100);
+  if(holdM>inst.mH)ras*=0.6;
+  // Price/target
+  var cp=inst.cp>0?inst.cp:isUS?(US_PRICES[inst.tk]||100):100;
+  var tgt=cp*Math.pow(Math.max(0.1,1+totalGross/100),holdYr);
+  var upsidePct=(tgt-cp)/cp*100;
+  var lower=cp*Math.pow(Math.max(0.1,1+(totalGross-sigForScore*100)/100),holdYr);
+  var upper=cp*Math.pow(Math.max(0.1,1+(totalGross+sigForScore*100)/100),holdYr);
+  var rawP=sig(sharpe*regFitScore*Math.sqrt(holdYr)*3.5,1.0);
+  if(useBlended)rawP=Math.min(0.92,rawP*0.6+(blended.bullProb||0)*0.4);
+  var prob=rawP*100;
+  var prob1m=sig(sharpe*regFitBase*Math.sqrt(1/12)*3.5,1.0)*100;
+  var prob3m=sig(sharpe*regFitBase*Math.sqrt(3/12)*3.5,1.0)*100;
+  var upside=Math.abs(upsidePct),dn=Math.abs(lower-cp)/cp*100;
+  var kelly=kellySize(prob,upside,dn);
+  var finalDistStr='';
+  if(useBlended&&blended.finalDist){var parts=[];RNAMES.forEach(function(r){var p=Math.round((blended.finalDist[r]||0)*100);if(p>=8)parts.push(r.replace('_',' ')+' '+p+'%');});finalDistStr=parts.join(' | ');}
+  return{
+    gross:totalGross,grossBase:grossBase,domAdj:domAdj,aiAdj:aiAdj,valAdj:valAdj,
+    fxOverlay:fxOverlay,friction:friction,domReasons:domReasons,aiReason:aiReason,aiEvent:aiEvent,val:val,
+    net:netForScore.toFixed(1),holdNet:holdNetReturn.toFixed(1),ras:ras,regFit:inst.rF[k]||0,regFitScore:(regFitScore*10).toFixed(1),
+    sig:sigForScore,taxNote:taxNote(inst,holdM),tgt:tgt,upsidePct:upsidePct,lower:lower,upper:upper,
+    prob:prob,prob1m:prob1m,prob3m:prob3m,kelly:kelly,divNet:divNet.toFixed(2),
+    blended:useBlended,finalDist:finalDistStr,
+    finalBullProb:useBlended?((blended.bullProb||0)*100).toFixed(0):null,
+    snapshots:useBlended?blended.snapshots:null,isUS:isUS,cp:cp
+  };
+}
+
+// ── LOADING STEPS ─────────────────────────────────────────────
+var LSTEPS=[
+  'Connecting to Alpha Vantage — fetching live US prices...',
+  'Fetching India live prices (Nifty, VIX, USD/INR, Brent)...',
+  'AI scanning Tier 1 (20 stocks) + condition-triggered stocks...',
+  'Fetching stock headlines from Google News RSS...',
+  'Fetching live NSE prices for 101 Indian stocks via backend...',
+  'Running announcement contagion engine (GTC + Iran war)...',
+  'Applying valuation filters (P/E vs 5yr average)...',
+  'Computing currency overlay for 19 US instruments...',
+  'Scoring 19 US + 105 India instruments ('+IN_U.length+' total)...',
+  'Applying Kelly criterion + correlation matrix...',
+  'Regime transition Markov chains for long holds...',
+  'AI portfolio coherence check...',
+  'Building stop-loss and dividend capture calendar...',
+  'Unified INR ranking — all 59 instruments...',
+];
+
+// ── LAUNCH ────────────────────────────────────────────────────
+function launch(){
+  var amt=parseInt(document.getElementById('aI').value)||100000;
+  var hold=parseInt(document.getElementById('hS').value);
+  var risk=document.getElementById('rS').value;
+  document.getElementById('ip').style.display='none';
+  document.getElementById('ls').style.display='flex';
+  document.getElementById('lA').textContent=fmtK(amt);
+  var stepsEl=document.getElementById('lSteps');
+  stepsEl.innerHTML='';
+  LSTEPS.forEach(function(s,i){var el=document.createElement('div');el.id='ls_'+i;el.className='ls-step pending';el.textContent=s;stepsEl.appendChild(el);});
+  // Start all fetches immediately
+  fetchLiveIndia();
+  var nsePromise=fetchNSEBackend();
+  var usPromise=fetchUSPrices();
+  // Start stock news fetch in background (non-blocking)
+  var tempMacro2=buildMacro();
+  var newsSymbols=TIER1_STOCKS.concat(getTier2Stocks(tempMacro2));
+  fetchStockNews(newsSymbols); // fire and forget — news populates STOCK_NEWS
+  var tempMacro=buildMacro();
+  var aiPromise=fetchAIIntelligence(tempMacro);
+  var step=0;
+  var delays=[2500,1500,0,0,600,700,700,800,900,700,800,0,600,500];
+  function nextStep(){
+    if(step>=LSTEPS.length){
+      Promise.all([usPromise,aiPromise,nsePromise]).then(function(results){
+        AI_RESULT=results[1];
+        renderApp(amt,hold,risk);
+        document.getElementById('ls').style.display='none';
+        document.getElementById('app').style.display='block';
+      });
+      return;
+    }
+    var el=document.getElementById('ls_'+step);
+    if(el)el.className='ls-step active';
+    document.getElementById('lF').style.width=(((step+.5)/LSTEPS.length)*100)+'%';
+    setTimeout(function(){
+      if(el)el.className='ls-step done';
+      document.getElementById('lF').style.width=(((step+1)/LSTEPS.length)*100)+'%';
+      step++;nextStep();
+    },delays[step]||400);
+  }
+  setTimeout(nextStep,200);
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderApp(amt,holdM,risk){
+  var macro=buildMacro();
+  var dominos=computeDominos(macro);
+  var aiSent={},aiTriggers=[],aiDom=[],aiCoherence='',aiNBIS=null;
+  if(AI_RESULT){
+    try{
+      if(AI_RESULT.sentiment)aiSent=AI_RESULT.sentiment;
+      if(AI_RESULT.triggers)aiTriggers=AI_RESULT.triggers;
+      if(AI_RESULT.dominoes)aiDom=AI_RESULT.dominoes;
+      if(AI_RESULT.coherence)aiCoherence=AI_RESULT.coherence;
+      if(AI_RESULT.nbis_signal)aiNBIS=AI_RESULT.nbis_signal;
+    }catch(e){}
+  }
+  var rc=RCFG[macro.reg];
+  var maxSig=risk==='conservative'?0.20:risk==='moderate'?0.40:0.99;
+  // Score all instruments
+  var scored=[];
+  ALL_U.forEach(function(inst){
+    var k=rk(macro.reg);
+    // Bear regime filters
+    if(macro.reg==='BEAR'&&(inst.ct==='IN MID CAP'||inst.ct==='IN LARGE CAP'||inst.ct==='IN SMALL CAP'))return;
+    // Sigma filter for India (US always included if not bear)
+    if(inst.country==='IN'&&inst.sg[k]>maxSig&&risk!=='aggressive')return;
+    var s=score(inst,macro,holdM,dominos,aiSent);
+    if(s.ras<1)return;
+    scored.push({inst:inst,s:s});
+  });
+  scored.sort(function(a,b){return b.s.ras-a.s.ras;});
+  var top10=scored.slice(0,10);
+  var maxRAS=top10.length?top10[0].s.ras:100;
+  var rawK=top10.map(function(item){return item.s.kelly;});
+  var kellyNorm=applyCorr(top10,rawK);
+
+  // ── YOUR PORTFOLIO ──
+  var usdInr=parseFloat(macro.usdInr);
+  var portTotalUSD=0,portTotalInvUSD=0;
+  var portEl=document.getElementById('portItems');
+  portEl.innerHTML='';
+  YOUR_PORTFOLIO.forEach(function(pos){
+    var currUSD=US_PRICES[pos.tk]||pos.avg;
+    var currVal=pos.qty*currUSD;
+    var invVal=pos.qty*pos.avg;
+    var pl=currVal-invVal;
+    var plPct=(pl/invVal)*100;
+    portTotalUSD+=currVal;portTotalInvUSD+=invVal;
+    var isGain=pl>=0;
+    var item=document.createElement('div');
+    item.className='port-item '+(isGain?'port-gain':'port-loss');
+    var left=document.createElement('div');left.className='pi-left';
+    var tk=document.createElement('div');tk.className='pi-tk';tk.style.color=isGain?'#00d4aa':'#ff4757';tk.textContent=pos.tk;
+    var nm=document.createElement('div');nm.className='pi-nm';nm.textContent=pos.nm;
+    var avg=document.createElement('div');avg.className='pi-avg';avg.textContent='Avg: $'+pos.avg.toFixed(2)+' | Qty: '+pos.qty.toFixed(3);
+    left.appendChild(tk);left.appendChild(nm);left.appendChild(avg);
+    if(pos.earnDate){var earn=document.createElement('div');earn.className='pi-earn';earn.textContent='Earnings: '+pos.earnDate+(pos.earnDays?' ('+pos.earnDays+'d)':'');left.appendChild(earn);}
+    if(pos.tk==='NBIS'&&aiNBIS){
+      var sig2=document.createElement('div');sig2.className='pi-signal';
+      var sigCol=aiNBIS.action==='ADD'?'#00d4aa':aiNBIS.action==='REDUCE'?'#ff4757':'#ffa726';
+      sig2.style.background='rgba('+h2r(sigCol)+',.1)';sig2.style.color=sigCol;sig2.style.border='1px solid rgba('+h2r(sigCol)+',.3)';
+      sig2.textContent='AI Signal: '+aiNBIS.action+(aiNBIS.reason?' — '+aiNBIS.reason:'');
+      left.appendChild(sig2);
+    }
+    var right=document.createElement('div');right.className='pi-right';
+    var curr=document.createElement('div');curr.className='pi-curr';curr.style.color=isGain?'#00d4aa':'#ff4757';curr.textContent='$'+currUSD.toFixed(2);
+    var plEl=document.createElement('div');plEl.className='pi-pl';plEl.style.color=isGain?'#00d4aa':'#ff4757';
+    plEl.textContent=(isGain?'+':'')+pl.toFixed(2)+'$ ('+plPct.toFixed(1)+'%)';
+    var inrEl=document.createElement('div');inrEl.className='pi-earn';
+    inrEl.textContent='≈ '+fmtK(Math.round(currVal*usdInr));
+    right.appendChild(curr);right.appendChild(plEl);right.appendChild(inrEl);
+    item.appendChild(left);item.appendChild(right);portEl.appendChild(item);
+  });
+  var portPlUSD=portTotalUSD-portTotalInvUSD;
+  var portPlPct=(portPlUSD/portTotalInvUSD)*100;
+  var pt=document.getElementById('portTotal');
+  pt.style.color=portPlUSD>=0?'#00d4aa':'#ff4757';
+  pt.textContent='$'+portTotalUSD.toFixed(0)+' ('+(portPlUSD>=0?'+':'')+portPlUSD.toFixed(0)+'$ / '+portPlPct.toFixed(1)+'%) ≈ '+fmtK(Math.round(portTotalUSD*usdInr));
+
+  // ── EARNINGS ALERT ──
+  var ea=getEarnAlert();
+  if(ea){var eab=document.getElementById('earnAlert');eab.style.display='block';document.getElementById('earnAlertBody').textContent=ea.msg;}
+
+  // ── CONTAGION MAP ──
+  var cc=document.getElementById('contaChains');cc.innerHTML='';
+  CONTAGION_TRIGGERS.forEach(function(trigger){
+    var chain=document.createElement('div');chain.className='conta-chain';
+    var head=document.createElement('div');head.className='conta-trigger';
+    head.style.color=trigger.headColor;
+    var flag=document.createElement('span');flag.className='conta-flag';
+    flag.style.background='rgba('+h2r(trigger.flagColor)+',.15)';flag.style.color=trigger.flagColor;
+    flag.style.border='1px solid rgba('+h2r(trigger.flagColor)+',.3)';
+    flag.textContent=trigger.flag;
+    head.appendChild(flag);head.appendChild(document.createTextNode(' '+trigger.name));
+    chain.appendChild(head);
+    var effs=document.createElement('div');effs.className='conta-effects';
+    trigger.effects.forEach(function(e){
+      var row=document.createElement('div');row.className='conta-eff';
+      var arr=document.createElement('div');arr.className='conta-arrow';arr.textContent='→';
+      var st=document.createElement('div');st.className='conta-stocks';st.textContent=e.stocks;
+      var why=document.createElement('div');why.className='conta-why';why.textContent=e.why;
+      var adj=document.createElement('div');adj.className='conta-adj';
+      adj.style.background='rgba('+h2r(e.adjC)+',.1)';adj.style.color=e.adjC;
+      adj.textContent=e.adj;
+      row.appendChild(arr);row.appendChild(st);row.appendChild(why);row.appendChild(adj);
+      effs.appendChild(row);
+    });
+    chain.appendChild(effs);cc.appendChild(chain);
+  });
+  // Add AI-detected domino chains
+  aiDom.forEach(function(d){
+    var chain=document.createElement('div');chain.className='conta-chain';
+    var head=document.createElement('div');head.className='conta-trigger';head.style.color='#9b59ff';
+    head.innerHTML='<span class="conta-flag" style="background:rgba(155,89,255,.15);color:#9b59ff;border:1px solid rgba(155,89,255,.3)">AI DETECTED</span> '+d.trigger;
+    var eff=document.createElement('div');eff.style.cssText='font-family:JetBrains Mono,monospace;font-size:8px;color:var(--t2);margin-top:4px;line-height:1.6';
+    eff.textContent=d.chain;
+    chain.appendChild(head);chain.appendChild(eff);cc.appendChild(chain);
+  });
+
+  // ── AI BANNER ──
+  var aiSt=document.getElementById('aiStatus');
+  var aiTxt=document.getElementById('aiTxt');
+  if(AI_RESULT){
+    aiSt.textContent=AV_FETCHED+' US prices live + AI active';
+    aiSt.style.background='rgba(0,212,170,.1)';aiSt.style.color='#00d4aa';aiSt.style.border='1px solid rgba(0,212,170,.2)';
+    var hi=[];
+    Object.keys(aiSent).forEach(function(tk){var s=aiSent[tk];if(Math.abs(s.score||0)>=2&&s.reason)hi.push(tk+': '+s.reason);});
+    aiTxt.textContent=(hi.length?'Key signals: '+hi.slice(0,3).join(' | ')+'. ':'')+aiCoherence;
+  }else{
+    aiSt.textContent=AV_FETCHED+' US prices'+(LIVE.fetched>0?' + '+LIVE.fetched+' India':'');
+    aiSt.style.background='rgba(255,167,38,.1)';aiSt.style.color='#ffa726';aiSt.style.border='1px solid rgba(255,167,38,.2)';
+    aiTxt.textContent='AI intelligence unavailable this session. Using hardcoded macro + domino engine. Live prices: USD/INR '+macro.usdInr+', Nifty '+macro.nifty.toLocaleString('en-IN')+', Brent $'+macro.brent+'.';
+  }
+
+  // ── MACRO STRIP ──
+  document.getElementById('hS2').textContent=holdM+'M | '+risk.toUpperCase()+' | IN+US UNIFIED';
+  document.getElementById('hA').textContent=fmtK(amt);
+  var msLive=document.getElementById('msLive');
+  msLive.textContent=(AV_FETCHED||0)+' US + '+(LIVE.fetched||0)+' India live';
+  msLive.style.background=AV_FETCHED>=5?'rgba(0,212,170,.1)':'rgba(255,167,38,.1)';
+  msLive.style.color=AV_FETCHED>=5?'#00d4aa':'#ffa726';
+  msLive.style.border=AV_FETCHED>=5?'1px solid rgba(0,212,170,.2)':'1px solid rgba(255,167,38,.2)';
+  var mData=[
+    {l:'USD/INR',v:macro.usdInr,c:'#00c8e0',s:'US holdings get +FX boost'},
+    {l:'RBI RATE',v:macro.repo+'% '+macro.rbi,c:'#00d4aa',s:'Cut cycle active Dec 2025'},
+    {l:'INDIA VIX',v:macro.vix,c:parseFloat(macro.vix)>20?'#ff4757':'#ffa726',s:'Elevated, falling from 22.6'},
+    {l:'BRENT',v:'$'+macro.brent,c:parseFloat(macro.brent)>95?'#ff4757':'#ffa726',s:'Elevated — Hormuz risk'},
+    {l:'NIFTY 50',v:macro.nifty.toLocaleString('en-IN'),c:'#ffa726',s:'Down 6% from Feb peak'},
+    {l:'REAL RATE',v:(parseFloat(macro.realRate)>=0?'+':'')+macro.realRate+'%',c:'#ffa726',s:'Negative = bullish gold'},
+  ];
+  var mg=document.getElementById('msGrid');mg.innerHTML='';
+  mData.forEach(function(d){
+    var b=document.createElement('div');b.className='mc';
+    var l=document.createElement('div');l.className='mc-l';l.textContent=d.l;
+    var v=document.createElement('div');v.className='mc-v';v.style.color=d.c;v.textContent=d.v;
+    var s=document.createElement('div');s.className='mc-s';s.style.color=d.c+'99';s.textContent=d.s;
+    b.appendChild(l);b.appendChild(v);b.appendChild(s);mg.appendChild(b);
+  });
+  var fiiStr = NSE.loaded
+    ? 'FII: '+(NSE.fii_net>=0?'+':'')+Math.round(NSE.fii_net)+' Cr today (live) | DII: +'+(Math.round(NSE.dii_net))+' Cr | '
+    : 'FII: ~-8,000 Cr (approx) | ';
+  document.getElementById('msVerdict').textContent = fiiStr + 'USD/INR '+macro.usdInr+' = your US holdings (DDOG/NET/CEG/NBIS) get +3-5% bonus INR return on top of USD gains. Brent $'+macro.brent+' = ONGC/HAL/CEG benefit; chemicals and auto hurt. RBI cutting = bonds, REITs, affordable housing improve. Iran war active = gold, defence, nuclear all move up.';
+
+  // ── REGIME BAR ──
+  var rDot=document.getElementById('regDot');rDot.style.background=rc.c;rDot.style.color=rc.c;
+  var rLbl=document.getElementById('regLbl');rLbl.textContent=rc.l;rLbl.style.color=rc.c;
+  document.getElementById('regConf').textContent='REx Score: '+macro.rs+' | India + US unified';
+  var rEx=document.getElementById('regExtra');rEx.innerHTML='';
+  if(macro.geo){var gc=document.createElement('div');gc.className='regime-chip';gc.style.background='rgba(255,71,87,.1)';gc.style.color='#ff4757';gc.style.border='1px solid rgba(255,71,87,.25)';gc.textContent='Iran War Active';rEx.appendChild(gc);}
+  // NSE MOVERS
+  if (NSE.loaded && (NSE.gainers.length > 0 || NSE.losers.length > 0)) {
+    var moversEl = document.getElementById('nseMovers');
+    moversEl.style.display = 'block';
+    document.getElementById('nseMoversTime').textContent = 'As of ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    var fiiLive = document.getElementById('nseFiiLive');
+    fiiLive.textContent = (NSE.fii_net>=0?'+':'')+Math.round(NSE.fii_net).toLocaleString('en-IN')+' Cr';
+    fiiLive.style.color = NSE.fii_net >= 0 ? '#00d4aa' : '#ff4757';
+    var diiLive = document.getElementById('nseDiiLive');
+    diiLive.textContent = '+'+(Math.round(NSE.dii_net)).toLocaleString('en-IN')+' Cr';
+    diiLive.style.color = '#00d4aa';
+    var gEl = document.getElementById('nseGainers'); gEl.innerHTML = '';
+    var lEl = document.getElementById('nseLosers');  lEl.innerHTML = '';
+    NSE.gainers.slice(0,5).forEach(function(s){
+      var d=document.createElement('div');
+      d.style.cssText='display:flex;justify-content:space-between;font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 0;border-bottom:1px solid rgba(0,0,0,.2)';
+      d.innerHTML='<span style="color:var(--text)">'+s.symbol+'</span><span style="color:#00d4aa;font-weight:700">+'+(parseFloat(s.pChange)||0).toFixed(1)+'%</span>';
+      gEl.appendChild(d);
+    });
+    NSE.losers.slice(0,5).forEach(function(s){
+      var d=document.createElement('div');
+      d.style.cssText='display:flex;justify-content:space-between;font-family:JetBrains Mono,monospace;font-size:9px;padding:2px 0;border-bottom:1px solid rgba(0,0,0,.2)';
+      d.innerHTML='<span style="color:var(--text)">'+s.symbol+'</span><span style="color:#ff4757;font-weight:700">'+(parseFloat(s.pChange)||0).toFixed(1)+'%</span>';
+      lEl.appendChild(d);
+    });
+  }
+  // MARKET NEWS
+  if (NSE.marketNews && NSE.marketNews.length > 0) {
+    var mnWrap = document.getElementById('mktNewsWrap'); mnWrap.style.display = 'block';
+    document.getElementById('mktNewsTime').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    var mnList = document.getElementById('mktNewsList'); mnList.innerHTML = '';
+    NSE.marketNews.slice(0,8).forEach(function(item){
+      var d=document.createElement('div');
+      d.style.cssText='font-family:JetBrains Mono,monospace;font-size:9px;color:var(--t2);padding:4px 0;border-bottom:1px solid var(--b1);line-height:1.5;display:flex;gap:6px;align-items:flex-start';
+      var dot=document.createElement('div');dot.style.cssText='color:#4f8ef7;flex-shrink:0';dot.textContent='→';
+      var txt=document.createElement('div');txt.textContent=item.title;
+      if(item.date){var dt=document.createElement('div');dt.style.cssText='color:var(--t3);font-size:7px;flex-shrink:0;margin-top:2px';dt.textContent=item.date.slice(0,16);d.appendChild(dot);d.appendChild(txt);d.appendChild(dt);}
+      else{d.appendChild(dot);d.appendChild(txt);}
+      mnList.appendChild(d);
+    });
+  }
+  document.getElementById('secT').textContent='Top '+top10.length+' — India + US Unified (INR terms)';
+  document.getElementById('secR').textContent='of '+(IN_U.length+US_U.length)+' scored | '+(NSE.prices?Object.keys(NSE.prices).length+' live NSE prices':'NSE prices loading');
+
+  // ── CARDS ──
+  var list=document.getElementById('cList');list.innerHTML='';
+  var prevCountry='';
+  top10.forEach(function(item,idx){
+    var inst=item.inst,s=item.s;
+    var bar=BARS[idx%BARS.length],col=inst.cl||'#4f8ef7',rgb=h2r(col);
+    var rasN=Math.min(100,(s.ras/maxRAS)*100).toFixed(0);
+    var gN=Math.min(100,Math.max(0,(s.gross+5)/70*100)).toFixed(0);
+    var nN=Math.min(100,Math.max(0,(parseFloat(s.net)+5)/70*100)).toFixed(0);
+    var kP=kellyNorm[idx]||0.05;var kA=Math.round(amt*kP);
+    var isUS=inst.country==='US';
+    var currPriceStr=isUS?fmtUSD(US_PRICES[inst.tk]||s.cp):(inst.cp>0?fmtK(inst.cp):'NAV Based');
+    var tgtStr=isUS?fmtUSD(Math.round(s.tgt*100)/100):fmtK(Math.round(s.tgt));
+    var lowerStr=isUS?fmtUSD(Math.round(s.lower*100)/100):fmtK(Math.round(s.lower));
+    var upperStr=isUS?fmtUSD(Math.round(s.upper*100)/100):fmtK(Math.round(s.upper));
+
+    // Country divider
+    if(inst.country!==prevCountry){
+      var dv=document.createElement('div');dv.className='cdiv';
+      var dl1=document.createElement('div');dl1.className='cdl';
+      var dlb=document.createElement('div');dlb.className='cdlb';
+      if(inst.country==='US'){dlb.innerHTML='<span class="cflag">&#127482;&#127480;</span>US STOCKS — IND MONEY';}
+      else{dlb.innerHTML='<span class="cflag">&#127470;&#127475;</span>INDIA STOCKS';}
+      var dl2=document.createElement('div');dl2.className='cdl';
+      dv.appendChild(dl1);dv.appendChild(dlb);dv.appendChild(dl2);
+      list.appendChild(dv);prevCountry=inst.country;
+    }
+
+    var card=document.createElement('div');card.className='card';card.style.transitionDelay=(idx*.05)+'s';
+    var tb=document.createElement('div');tb.className='ctb';tb.style.background=bar;card.appendChild(tb);
+    var cb=document.createElement('div');cb.className='cb';
+    var rkg=document.createElement('div');rkg.className='rkg';rkg.textContent='#'+(idx+1);cb.appendChild(rkg);
+    // Country badge
+    var cbadge=document.createElement('div');cbadge.className='country-badge';
+    if(isUS){cbadge.style.background='rgba(79,142,247,.15)';cbadge.style.color='#4f8ef7';cbadge.style.border='1px solid rgba(79,142,247,.3)';cbadge.textContent='🇺🇸 US';}
+    else{cbadge.style.background='rgba(255,153,51,.15)';cbadge.style.color='#ff9933';cbadge.style.border='1px solid rgba(255,153,51,.3)';cbadge.textContent='🇮🇳 IN';}
+    cb.appendChild(cbadge);
+
+    // Header
+    var ch=document.createElement('div');ch.className='ch';ch.style.marginTop='16px';
+    var cl2=document.createElement('div');
+    var ctk=document.createElement('div');ctk.className='ctk';ctk.textContent=inst.tk;
+    var cfn=document.createElement('div');cfn.className='cfn';cfn.textContent=inst.nm;
+    var csc=document.createElement('div');csc.className='csc';csc.textContent=inst.sc+(isUS?' | IND Money via USD':'');
+    cl2.appendChild(ctk);cl2.appendChild(cfn);cl2.appendChild(csc);
+    var cbg=document.createElement('div');cbg.className='cbg';
+    (inst.tg||[]).forEach(function(t){var b=document.createElement('span');b.className='cbdg';b.style.background='rgba('+rgb+',.08)';b.style.color=col;b.style.border='1px solid rgba('+rgb+',.2)';b.textContent=t;cbg.appendChild(b);});
+    cl2.appendChild(cbg);
+    // FX overlay badge for US stocks
+    if(isUS&&s.fxOverlay>0){
+      var fxBadge=document.createElement('div');fxBadge.className='fx-badge';
+      fxBadge.textContent='USD/INR '+macro.usdInr+' → +'+(s.fxOverlay).toFixed(1)+'% INR bonus on returns';
+      cl2.appendChild(fxBadge);
+    }
+    // AI sentiment
+    if(s.aiReason){
+      var stag=document.createElement('div');stag.className='sentiment-tag';
+      var isPos=s.aiAdj>=0;
+      stag.style.background=isPos?'rgba(0,212,170,.1)':'rgba(255,71,87,.1)';
+      stag.style.color=isPos?'#00d4aa':'#ff4757';
+      stag.style.border='1px solid '+(isPos?'rgba(0,212,170,.25)':'rgba(255,71,87,.25)');
+      stag.textContent='AI: '+s.aiReason+(s.aiEvent?' ['+s.aiEvent+']':'');
+      cl2.appendChild(stag);
+    }
+    // Valuation
+    var vtag=document.createElement('div');vtag.className='val-tag';
+    vtag.style.background='rgba('+h2r(s.val.color)+',.08)';vtag.style.color=s.val.color;
+    vtag.style.border='1px solid rgba('+h2r(s.val.color)+',.2)';
+    vtag.textContent=s.val.label;cl2.appendChild(vtag);
+    ch.appendChild(cl2);
+    var cr=document.createElement('div');cr.className='cr';
+    var cras=document.createElement('div');cras.className='cras';cras.style.color=col;cras.textContent=s.ras.toFixed(0);
+    var crasl=document.createElement('div');crasl.className='cras-l';crasl.textContent='RAS SCORE';
+    var ccp=document.createElement('div');ccp.className='ccp';ccp.textContent=currPriceStr;
+    var cg=document.createElement('div');cg.className='cgross';cg.textContent=sgn(s.gross)+'% gross p.a. (INR)';
+    var cn=document.createElement('div');cn.className='cnet';cn.textContent=sgn(s.net)+'% after-tax p.a.';
+    cr.appendChild(cras);cr.appendChild(crasl);cr.appendChild(ccp);cr.appendChild(cg);cr.appendChild(cn);
+    ch.appendChild(cr);cb.appendChild(ch);
+
+    // YOUR POSITION (for existing holdings)
+    if(inst.yourPos){
+      var yp=inst.yourPos;var currP=US_PRICES[inst.tk]||yp.avg;
+      var currV=yp.qty*currP,invV=yp.qty*yp.avg,pl=currV-invV,plPct=(pl/invV)*100;
+      var ypBox=document.createElement('div');
+      ypBox.style.cssText='background:rgba('+(pl>=0?'0,212,170':'255,71,87')+',.06);border:1px solid rgba('+(pl>=0?'0,212,170':'255,71,87')+',.2);border-radius:8px;padding:8px 10px;margin-bottom:9px';
+      var ypT=document.createElement('div');ypT.style.cssText='font-family:JetBrains Mono,monospace;font-size:7px;color:'+(pl>=0?'#00d4aa':'#ff4757')+';letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px';
+      ypT.textContent='YOUR POSITION';
+      var ypR=document.createElement('div');ypR.style.cssText='display:flex;justify-content:space-between;align-items:center;font-family:JetBrains Mono,monospace;font-size:9px';
+      var ypL=document.createElement('div');ypL.textContent='Avg $'+yp.avg.toFixed(2)+' | Qty '+yp.qty.toFixed(3)+' | Invested $'+invV.toFixed(0);ypL.style.color='var(--t2)';
+      var ypV=document.createElement('div');ypV.style.color=pl>=0?'#00d4aa':'#ff4757';ypV.style.fontWeight='700';
+      ypV.textContent=(pl>=0?'+':'')+pl.toFixed(2)+'$ ('+plPct.toFixed(1)+'%) ≈ '+fmtK(Math.round(currV*usdInr));
+      ypR.appendChild(ypL);ypR.appendChild(ypV);ypBox.appendChild(ypT);ypBox.appendChild(ypR);
+      cb.appendChild(ypBox);
+    }
+
+    // CONTAGION IMPACT ON THIS STOCK
+    if(s.domAdj!==0&&s.domReasons.length>0){
+      var ccb=document.createElement('div');ccb.className='conta-card';
+      var cct=document.createElement('div');cct.className='conta-card-t';cct.textContent='CONTAGION IMPACT ON THIS STOCK';
+      ccb.appendChild(cct);
+      var ccr=document.createElement('div');ccr.className='conta-card-row';
+      var ccw=document.createElement('div');ccw.className='conta-card-reason';ccw.textContent=s.domReasons.slice(0,2).join(' | ');
+      var cca=document.createElement('div');cca.className='conta-card-adj';
+      var isPos2=s.domAdj>=0;
+      cca.style.background=isPos2?'rgba(0,212,170,.1)':'rgba(255,71,87,.1)';cca.style.color=isPos2?'#00d4aa':'#ff4757';
+      cca.textContent=(s.domAdj>=0?'+':'')+s.domAdj.toFixed(1)+'% REx';
+      ccr.appendChild(ccw);ccr.appendChild(cca);ccb.appendChild(ccr);cb.appendChild(ccb);
+    }
+
+    // KELLY
+    var kb=document.createElement('div');kb.className='kelly-box';
+    var kt=document.createElement('div');kt.className='kelly-t';kt.textContent='KELLY CRITERION — SUGGESTED ALLOCATION';
+    var kr=document.createElement('div');kr.className='kelly-row';
+    var kp2=document.createElement('div');
+    var kpct=document.createElement('div');kpct.className='kelly-pct';kpct.textContent=(kP*100).toFixed(0)+'%';
+    var kamt2=document.createElement('div');kamt2.className='kelly-amt';kamt2.textContent='= '+fmtK(kA)+' of your '+fmtK(amt);
+    kp2.appendChild(kpct);kp2.appendChild(kamt2);
+    var kn=document.createElement('div');kn.className='kelly-note';
+    var sect2=SECT_FOR[inst.tk]||'OTHER';
+    kn.textContent=(isUS?'IND Money. Tax: 30% flat.\n':'In: '+sect2+'\n')+(isUS?'~1.5% friction included':'Correlation-adjusted | 25% sector cap');
+    kr.appendChild(kp2);kr.appendChild(kn);kb.appendChild(kt);kb.appendChild(kr);
+    var kbar=document.createElement('div');kbar.className='kelly-bar';
+    var kfill=document.createElement('div');kfill.className='kelly-fill';kfill.id='kf'+idx;kfill.setAttribute('data-w',(kP*100).toFixed(0));
+    kbar.appendChild(kfill);kb.appendChild(kbar);cb.appendChild(kb);
+
+    // PRICE TARGET
+    var ptb2=document.createElement('div');ptb2.className='ptb';
+    ptb2.style.background='rgba('+rgb+',.06)';ptb2.style.borderColor='rgba('+rgb+',.25)';
+    var ptTop=document.createElement('div');ptTop.className='pt-top';
+    var ptL=document.createElement('div');
+    var ptLbl=document.createElement('div');ptLbl.className='pt-lbl';ptLbl.textContent='TARGET ('+holdM+'M)'+(isUS?' INCL CURRENCY OVERLAY':'')+(s.blended?' REGIME BLENDED':'');
+    var ptTgt=document.createElement('div');ptTgt.className='pt-tgt';ptTgt.style.color=col;ptTgt.textContent=tgtStr;
+    var ptUp=document.createElement('div');ptUp.className='pt-up';ptUp.style.color=gC(s.upsidePct);
+    ptUp.textContent=(s.upsidePct>=0?'+':'')+s.upsidePct.toFixed(1)+'% upside'+(isUS?' in USD':'');
+    ptL.appendChild(ptLbl);ptL.appendChild(ptTgt);ptL.appendChild(ptUp);
+    if(s.cp>0){var ptR2=document.createElement('div');ptR2.className='pt-range';ptR2.textContent='Range: '+lowerStr+' — '+upperStr;ptL.appendChild(ptR2);}
+    var ptRight=document.createElement('div');
+    var ptProb=document.createElement('div');ptProb.className='pt-prob';ptProb.style.color=pC(s.prob);ptProb.textContent=s.prob.toFixed(0)+'%';
+    var ptPl=document.createElement('div');ptPl.className='pt-pl';ptPl.textContent='PROB';
+    ptRight.appendChild(ptProb);ptRight.appendChild(ptPl);
+    ptTop.appendChild(ptL);ptTop.appendChild(ptRight);ptb2.appendChild(ptTop);
+    var ptBar=document.createElement('div');ptBar.className='pt-bar';
+    var ptBf=document.createElement('div');ptBf.className='pt-bf';ptBf.id='ptf'+idx;
+    ptBf.style.background='linear-gradient(90deg,'+pC(s.prob)+','+col+')';ptBf.setAttribute('data-w',s.prob.toFixed(0));
+    ptBar.appendChild(ptBf);ptb2.appendChild(ptBar);
+    var ptTfs=document.createElement('div');ptTfs.className='pt-tfs';
+    [{d:'1M',p:s.prob1m},{d:'3M',p:s.prob3m},{d:holdM+'M',p:s.prob}].forEach(function(tf){
+      var b=document.createElement('div');b.className='pt-tf';
+      var d=document.createElement('div');d.className='pt-tfd';d.textContent=tf.d;
+      var p=document.createElement('div');p.className='pt-tfp';p.style.color=pC(tf.p);p.textContent=tf.p.toFixed(0)+'%';
+      b.appendChild(d);b.appendChild(p);ptTfs.appendChild(b);
+    });
+    ptb2.appendChild(ptTfs);cb.appendChild(ptb2);
+
+    // STOP LOSS
+    var sl=getStopLoss(inst,s,isUS);
+    if(sl){
+      var slb=document.createElement('div');slb.className='sl-box';
+      var slt=document.createElement('div');slt.className='sl-t';slt.textContent='STOP LOSS / EXIT SIGNAL';
+      var slr=document.createElement('div');slr.className='sl-row';
+      var slP=document.createElement('div');slP.className='sl-price';slP.textContent=sl.price+' ('+sl.pct+' from entry)';
+      var slN=document.createElement('div');slN.className='sl-note';slN.textContent=sl.note;
+      slr.appendChild(slP);slr.appendChild(slN);slb.appendChild(slt);slb.appendChild(slr);cb.appendChild(slb);
+    }
+
+    // DIVIDEND CAPTURE (if applicable)
+    if(inst.dv>0){
+      var divCap=getDivCap(inst.tk,holdM);
+      var db=document.createElement('div');db.className='div-box';
+      var dt=document.createElement('div');dt.className='div-t';dt.textContent='DIVIDEND CAPTURE';
+      var dr=document.createElement('div');dr.className='div-row';
+      var dy=document.createElement('div');dy.className='div-yield';dy.textContent=inst.dv.toFixed(2)+'% yield | net '+s.divNet+'% after tax';
+      var dn=document.createElement('div');dn.className='div-note';dn.textContent=divCap?divCap.label:'No dividend in hold period';
+      dr.appendChild(dy);dr.appendChild(dn);db.appendChild(dt);db.appendChild(dr);cb.appendChild(db);
+    }
+
+    // REGIME TRANSITION (India, long holds)
+    if(s.blended&&s.snapshots&&s.snapshots.length>0){
+      var rtWrap=document.createElement('div');rtWrap.className='rt-wrap';
+      var rtT=document.createElement('div');rtT.className='rt-t';rtT.textContent='REGIME TRANSITION ('+holdM+'M HORIZON)';
+      rtWrap.appendChild(rtT);
+      var rtTl=document.createElement('div');rtTl.className='rt-timeline';
+      var toShow=[s.snapshots[0]];
+      if(s.snapshots.length>1)toShow.push(s.snapshots[Math.floor(s.snapshots.length/2)]);
+      toShow.push(s.snapshots[s.snapshots.length-1]);
+      toShow.forEach(function(snap){
+        var row=document.createElement('div');row.className='rt-row';
+        var per=document.createElement('div');per.className='rt-period';per.textContent=snap.month>=12?Math.round(snap.month/12)+'Y':snap.month+'M';
+        var bars=document.createElement('div');bars.className='rt-bars';
+        RNAMES.forEach(function(r){var p=(snap.dist[r]||0);if(p>0.02){var seg=document.createElement('div');seg.className='rt-seg';seg.style.width=(p*100).toFixed(0)+'%';seg.style.background=RCOLS[r]||'#555';bars.appendChild(seg);}});
+        row.appendChild(per);row.appendChild(bars);rtTl.appendChild(row);
+      });
+      rtWrap.appendChild(rtTl);
+      var rtLeg=document.createElement('div');rtLeg.className='rt-legend';
+      RNAMES.forEach(function(r){var p=Math.round((s.snapshots[s.snapshots.length-1].dist[r]||0)*100);if(p>=5){var item=document.createElement('div');item.className='rt-leg-item';var dot=document.createElement('div');dot.className='rt-leg-dot';dot.style.background=RCOLS[r]||'#555';item.appendChild(dot);item.appendChild(document.createTextNode(r.replace('_',' ')+' '+p+'%'));rtLeg.appendChild(item);}});
+      rtWrap.appendChild(rtLeg);
+      var rtTxt=document.createElement('div');rtTxt.className='rt-txt';
+      rtTxt.textContent='Bull/Soft Bull at end of '+holdM+'M: '+s.finalBullProb+'%. '+s.finalDist;
+      rtWrap.appendChild(rtTxt);cb.appendChild(rtWrap);
+    }
+
+    // SCORE ADJUSTMENTS BOX
+    // ── SCORE TRANSPARENCY + NEWS ──────────────────────────────
+    var adjBox=document.createElement('div');adjBox.className='adj-box';
+    var adjT=document.createElement('div');adjT.className='adj-t';adjT.textContent='SCORE COMPOSITION — HOW THIS RANK WAS CALCULATED';
+    adjBox.appendChild(adjT);
+
+    // Score breakdown waterfall
+    var adjItems=[
+      {k:'1. Base regime return ('+macro.reg+')',v:sgn(s.grossBase)+'%',c:gC(s.grossBase),
+       note:isUS?'US AI boom regime + sector adj':'India '+macro.reg+' regime base for '+inst.rc+' sector'},
+      isUS&&s.fxOverlay>0?{k:'2. Currency overlay (USD/INR '+macro.usdInr+')',v:'+'+s.fxOverlay.toFixed(1)+'%',c:'#00c8e0',
+       note:'Rupee at '+macro.usdInr+' expected to weaken further → INR bonus on USD returns'}:null,
+      isUS?{k:'3. IND Money friction cost',v:'-1.5%',c:'#ff4757',
+       note:'~0.75% spread each way on USD/INR conversion = 1.5% round trip cost'}:null,
+      s.domAdj!==0?{k:(isUS?'3':'2')+'. Domino engine ('+(s.domAdj>0?'positive':'negative')+')',
+       v:(s.domAdj>=0?'+':'')+s.domAdj.toFixed(1)+'%',c:gC(s.domAdj),
+       note:s.domReasons.slice(0,2).join(' | ')}:null,
+      s.aiAdj!==0?{k:(isUS?'4':'3')+'. AI news sentiment',v:(s.aiAdj>=0?'+':'')+s.aiAdj.toFixed(1)+'%',c:gC(s.aiAdj),
+       note:s.aiReason+(s.aiEvent?' — Event: '+s.aiEvent:'')}:null,
+      s.valAdj!==0?{k:(isUS?'5':'4')+'. Valuation filter',v:(s.valAdj>=0?'+':'')+s.valAdj.toFixed(0)+' RAS pts',c:s.val.color,
+       note:s.val.label}:null,
+      {k:'= Total gross return (incl dividend)',v:sgn(s.gross)+'% p.a.',c:gC(s.gross),note:'Before tax'},
+      {k:'= Net after '+s.taxNote,v:sgn(s.net)+'% p.a.',c:'#00d4aa',
+       note:'After tax → used for Sharpe calculation'},
+      {k:'Regime fit score',v:s.regFitScore+'/10',c:'#9b59ff',
+       note:'How well '+inst.tk+' fits '+macro.reg+' regime (10=perfect fit)'},
+      {k:'RAS = Sharpe × 0.6 + RegimeFit × 0.4',v:s.ras.toFixed(1)+'/100',c:'#ffa726',
+       note:'Sharpe uses after-tax net return. Final score on common INR scale vs all '+(IN_U.length+US_U.length)+' instruments'},
+    ].filter(Boolean);
+
+    adjItems.forEach(function(a){
+      var wrap=document.createElement('div');
+      wrap.style.cssText='padding:4px 0;border-bottom:1px solid rgba(79,142,247,.07)';
+      var row=document.createElement('div');row.className='adj-row';
+      var k=document.createElement('div');k.className='adj-k';k.textContent=a.k;
+      var v=document.createElement('div');v.className='adj-v';v.style.color=a.c;v.textContent=a.v;
+      row.appendChild(k);row.appendChild(v);wrap.appendChild(row);
+      if(a.note){
+        var note=document.createElement('div');
+        note.style.cssText='font-family:JetBrains Mono,monospace;font-size:7px;color:var(--t3);padding:1px 0 2px 4px;line-height:1.5';
+        note.textContent='→ '+a.note;wrap.appendChild(note);
+      }
+      adjBox.appendChild(wrap);
+    });
+
+    // Stock news section
+    var newsItems = STOCK_NEWS[inst.tk] || [];
+    if (newsItems.length > 0) {
+      var newsWrap=document.createElement('div');
+      newsWrap.style.cssText='margin-top:8px;padding-top:7px;border-top:1px solid rgba(79,142,247,.15)';
+      var newsT=document.createElement('div');
+      newsT.style.cssText='font-family:JetBrains Mono,monospace;font-size:7px;color:#4f8ef7;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px';
+      newsT.textContent='LATEST NEWS ('+newsItems.length+' headlines)';
+      newsWrap.appendChild(newsT);
+      newsItems.slice(0,4).forEach(function(item){
+        var nItem=document.createElement('div');
+        nItem.style.cssText='font-family:JetBrains Mono,monospace;font-size:8px;color:var(--t2);padding:3px 0;border-bottom:1px solid var(--b1);line-height:1.5;display:flex;align-items:flex-start;gap:5px';
+        var dot=document.createElement('div');dot.style.cssText='color:#4f8ef7;flex-shrink:0;margin-top:2px';dot.textContent='•';
+        var txt=document.createElement('div');txt.textContent=item.title;
+        nItem.appendChild(dot);nItem.appendChild(txt);
+        newsWrap.appendChild(nItem);
+      });
+      adjBox.appendChild(newsWrap);
+    }
+
+    var adjNote=document.createElement('div');adjNote.className='adj-note';adjNote.style.marginTop='6px';adjNote.textContent=inst.wy;
+    adjBox.appendChild(adjNote);cb.appendChild(adjBox);
+
+    // 4 METRICS
+    var m4=document.createElement('div');m4.className='m4';
+    [{l:'RISK',v:rL(s.sig),c:rC(s.sig)},{l:'VOLATILITY',v:(s.sig*100).toFixed(0)+'%',c:rC(s.sig)},{l:'GROSS INR',v:sgn(s.gross)+'%',c:gC(s.gross)},{l:'NET P.A.',v:sgn(s.net)+'%',c:'#00d4aa'}].forEach(function(d){
+      var b=document.createElement('div');b.className='m4b';
+      var l=document.createElement('div');l.className='m4l';l.textContent=d.l;
+      var v=document.createElement('div');v.className='m4v';v.style.color=d.c;v.textContent=d.v;
+      b.appendChild(l);b.appendChild(v);m4.appendChild(b);
+    });
+    cb.appendChild(m4);
+
+    // RETURN BAR
+    var bsec=document.createElement('div');bsec.className='bsec';
+    var bhd=document.createElement('div');bhd.className='bhd';
+    var bll=document.createElement('div');bll.className='bll';bll.textContent='GROSS vs AFTER-TAX (INR)';
+    var btx=document.createElement('div');btx.className='btx';btx.textContent=s.taxNote;
+    bhd.appendChild(bll);bhd.appendChild(btx);bsec.appendChild(bhd);
+    var btr=document.createElement('div');btr.className='btr';
+    var bg2e=document.createElement('div');bg2e.className='bg2e';bg2e.style.background=col;bg2e.style.width=gN+'%';
+    var bn=document.createElement('div');bn.className='bn';bn.id='bn'+idx;bn.style.background=bar;bn.setAttribute('data-w',nN);
+    btr.appendChild(bg2e);btr.appendChild(bn);bsec.appendChild(btr);
+    var bnt=document.createElement('div');bnt.className='bnt';bnt.textContent='Gross '+sgn(s.gross)+'% vs Net '+sgn(s.net)+'% | '+s.taxNote;
+    bsec.appendChild(bnt);cb.appendChild(bsec);
+
+    // PROJECTION
+    var projSec=document.createElement('div');projSec.className='proj-sec';
+    var projLbl=document.createElement('div');projLbl.className='proj-lbl';
+    projLbl.textContent='YOUR '+fmtK(amt)+' PROJECTION (INR TERMS)';
+    projSec.appendChild(projLbl);
+    var ptbl=document.createElement('div');ptbl.className='proj-tbl';
+    var periods=[1,3,6,12,18,24,36,60].filter(function(p){return p<=Math.max(holdM,24);}).slice(0,6);
+    var phrow=document.createElement('div');phrow.className='proj-hrow';
+    phrow.style.gridTemplateColumns='44px repeat('+periods.length+',1fr)';
+    phrow.appendChild(Object.assign(document.createElement('div'),{className:'proj-hcell',textContent:''}));
+    periods.forEach(function(p){var c=document.createElement('div');c.className='proj-hcell';c.textContent=p>=12?(p/12).toFixed(0)+'Y':p+'M';phrow.appendChild(c);});
+    ptbl.appendChild(phrow);
+    // Tax multiplier for this instrument and hold period
+    var taxMult = holdM >= 12 ? inst.tM.l : inst.tM.s;
+    // Dividend net (already after tax in s.divNet)
+    var divNetAnnual = parseFloat(s.divNet) || 0;
+
+    [{l:'BULL',m:1.35,c:'#00d4aa'},{l:'BASE',m:1.00,c:'#00c8e0'},{l:'BEAR',m:0.55,c:'#ffa726'}].forEach(function(sc3){
+      var drow=document.createElement('div');drow.className='proj-drow';drow.style.gridTemplateColumns='44px repeat('+periods.length+',1fr)';
+      var scEl=document.createElement('div');scEl.className='proj-sc';scEl.style.color=sc3.c;scEl.textContent=sc3.l;
+      drow.appendChild(scEl);
+      periods.forEach(function(p){
+        var hy=p/12;
+        // Gross return scaled by scenario multiplier
+        var grossR = s.gross * sc3.m;
+        // Capital gain component (gross minus dividend)
+        var capGainR = (grossR - inst.dv * sc3.m);
+        // Apply tax to capital gain, add back net dividend
+        var netR = capGainR * taxMult + divNetAnnual * sc3.m * hy;
+        // Compound net return
+        var netAnnualR = capGainR * taxMult + divNetAnnual * sc3.m;
+        var aM = Math.max(0.1, 1 + netAnnualR / 100);
+        var pA = Math.round(amt * Math.pow(aM, hy));
+        var pP = (pA - amt) / amt * 100;
+        var c=document.createElement('div');c.className='proj-cell';
+        var av=document.createElement('div');av.className='proj-amt';av.style.color=pA>=amt?sc3.c:'#ff4757';av.textContent=fmtK(pA);
+        var ap=document.createElement('div');ap.className='proj-pct';ap.style.color=pA>=amt?sc3.c+'99':'#ff475799';
+        ap.textContent=(pP>=0?'+':'')+pP.toFixed(1)+'% after tax';
+        c.appendChild(av);c.appendChild(ap);drow.appendChild(c);
+      });
+      ptbl.appendChild(drow);
+    });
+    var evrow=document.createElement('div');evrow.className='proj-evrow';evrow.style.gridTemplateColumns='44px repeat('+periods.length+',1fr)';
+    var evsc=document.createElement('div');evsc.className='proj-sc';evsc.style.color='#4f8ef7';evsc.textContent='EV';evrow.appendChild(evsc);
+    periods.forEach(function(p){
+      var hy=p/12,ev=0;
+      [1.35,1.00,0.55].forEach(function(m,wi){
+        var w=[.25,.50,.25][wi];
+        var capGainR2 = (s.gross * m - inst.dv * m);
+        var netAnnualR2 = capGainR2 * taxMult + divNetAnnual * m;
+        var aM2 = Math.max(0.1, 1 + netAnnualR2 / 100);
+        ev += Math.round(amt * Math.pow(aM2, hy)) * w;
+      });
+      ev=Math.round(ev);var pct=(ev-amt)/amt*100;
+      var c=document.createElement('div');c.className='proj-cell';
+      var av=document.createElement('div');av.className='proj-amt';av.style.color='#4f8ef7';av.textContent=fmtK(ev);
+      var ap=document.createElement('div');ap.className='proj-pct';ap.style.color='rgba(79,142,247,.7)';
+      ap.textContent=(pct>=0?'+':'')+pct.toFixed(1)+'% after tax';
+      c.appendChild(av);c.appendChild(ap);evrow.appendChild(c);
+    });
+    ptbl.appendChild(evrow);
+    projSec.appendChild(ptbl);
+    var pn=document.createElement('div');pn.style.cssText='font-family:JetBrains Mono,monospace;font-size:7px;color:var(--t3);margin-top:4px;line-height:1.7';
+    pn.textContent='All amounts in INR after tax ('+s.taxNote+'). BULL=+35% on expected, BEAR=-45%, EV=probability-weighted. Dividend taxed separately at 30%.';
+    projSec.appendChild(pn);cb.appendChild(projSec);
+
+    // RAS BAR
+    var rasw=document.createElement('div');rasw.className='rasw';
+    var rash=document.createElement('div');rash.className='rash';
+    var rasl=document.createElement('div');rasl.className='rasl';rasl.textContent='RISK-ADJUSTED SCORE (ALL FACTORS INCL FX)';
+    var rasv=document.createElement('div');rasv.className='rasv';rasv.textContent=s.ras.toFixed(0)+'/100';
+    rash.appendChild(rasl);rash.appendChild(rasv);rasw.appendChild(rash);
+    var rast=document.createElement('div');rast.className='rast';
+    var rasf=document.createElement('div');rasf.className='rasf';rasf.id='rf'+idx;rasf.style.background=bar;rasf.setAttribute('data-w',rasN);
+    rast.appendChild(rasf);rasw.appendChild(rast);cb.appendChild(rasw);
+    var cdsc=document.createElement('div');cdsc.className='cdsc';cdsc.textContent=inst.wy;cb.appendChild(cdsc);
+    card.appendChild(cb);list.appendChild(card);
+
+    (function(c2,i){
+      requestAnimationFrame(function(){
+        setTimeout(function(){
+          c2.classList.add('show');
+          setTimeout(function(){
+            var b=document.getElementById('bn'+i);if(b)b.style.width=b.getAttribute('data-w')+'%';
+            var r=document.getElementById('rf'+i);if(r)r.style.width=r.getAttribute('data-w')+'%';
+            var p=document.getElementById('ptf'+i);if(p)p.style.width=p.getAttribute('data-w')+'%';
+            var k=document.getElementById('kf'+i);if(k)k.style.width=k.getAttribute('data-w')+'%';
+          },80+i*40);
+        },20+i*50);
+      });
+    })(card,idx);
+  });
+
+  // ── COHERENCE ──
+  if(aiCoherence){var cw=document.getElementById('coherWrap');cw.style.display='block';document.getElementById('coherTxt').textContent=aiCoherence;}
+
+  // ── SUMMARY ──
+  var t3n=0,t3p=0,t3k=0,usCt=0,inCt=0;
+  for(var i=0;i<Math.min(3,top10.length);i++){t3n+=parseFloat(top10[i].s.net);t3p+=top10[i].s.prob;t3k+=(kellyNorm[i]||.05)*100;}
+  top10.forEach(function(x){if(x.inst.country==='US')usCt++;else inCt++;});
+  var tl=Math.max(1,Math.min(3,top10.length));t3n/=tl;t3p/=tl;t3k/=tl;
+  var sb=document.getElementById('sumB');sb.innerHTML='';
+  var st=document.createElement('div');st.className='sumt';st.textContent='SUMMARY — '+usCt+' US + '+inCt+' INDIA IN TOP '+top10.length;sb.appendChild(st);
+  var sg=document.createElement('div');sg.className='sumg';sb.appendChild(sg);
+  [{l:'TOP PICK',v:top10.length?top10[0].inst.tk:'--',c:top10.length?top10[0].inst.cl:'#00d4aa'},
+   {l:'REGIME',v:rc.l,c:rc.c},
+   {l:'AVG TOP-3 NET',v:'+'+t3n.toFixed(1)+'% p.a.',c:'#00d4aa'},
+   {l:'AVG HIT PROB',v:t3p.toFixed(0)+'%',c:pC(t3p)},
+   {l:'US PRICES LIVE',v:AV_FETCHED+' via AV',c:AV_FETCHED>=5?'#00d4aa':'#ffa726'},
+   {l:'AI INTEL',v:AI_RESULT?'ACTIVE':'FALLBACK',c:AI_RESULT?'#00d4aa':'#ffa726'},
+   {l:'NSE BACKEND',v:NSE.loaded?'LIVE':'FALLBACK',c:NSE.loaded?'#00d4aa':'#ffa726'},
+   {l:'FII TODAY',v:NSE.loaded?((NSE.fii_net>=0?'+':'')+Math.round(NSE.fii_net)+' Cr'):'~-2714 Cr',c:NSE.fii_net>=0?'#00d4aa':'#ff4757'},
+   {l:'RBI',v:'PAUSED 5.25%',c:'#ffa726'},
+   {l:'FED',v:'HOLD 3.5-3.75%',c:'#ff4757'},
+   {l:'NEXT MPC',v:'APR 6-8',c:'#ffa726'},
+   {l:'ALL CBs',v:'HOLDING',c:'#ff4757'},
+   {l:'NBIS SIGNAL',v:aiNBIS?aiNBIS.action:'HOLD',c:aiNBIS&&aiNBIS.action==='ADD'?'#00d4aa':aiNBIS&&aiNBIS.action==='REDUCE'?'#ff4757':'#ffa726'},
+   {l:'USD/INR FX BOOST',v:'+'+((USD_INR_EXPECTED_CHANGE*holdM/12*100).toFixed(1))+'% on US',c:'#00c8e0'},
+  ].forEach(function(d){
+    var b=document.createElement('div');b.className='smb';
+    var l=document.createElement('div');l.className='sml';l.textContent=d.l;
+    var v=document.createElement('div');v.className='smv';v.style.color=d.c;v.style.fontSize='11px';v.textContent=d.v;
+    b.appendChild(l);b.appendChild(v);sg.appendChild(b);
+  });
+}
+
+// ── SCENARIO ─────────────────────────────────────────────────
+async function runScenario(){
+  var inp=document.getElementById('scenInp').value.trim();if(!inp)return;
+  var loading=document.getElementById('scenLoading'),result=document.getElementById('scenResult');
+  loading.style.display='block';result.style.display='none';
+  var macro=buildMacro();
+  var prompt='Indian investor holding DDOG, NET, CEG, NBIS (US) + India stocks including HAL, BEL, Gold ETF, ICICI Bank, TCS. Current: Nifty '+macro.nifty+', USD/INR '+macro.usdInr+', Brent $'+macro.brent+', RBI '+macro.repo+'% '+macro.rbi+'.\n\nScenario: "'+inp+'"\n\nAnalyse: (1) macro impact (2) which of these stocks benefit most: NVDA, DDOG, NET, CEG, NBIS, HAL, BEL, GOLD ETF, ONGC, TCS, PERSISTENT, ICICI BANK (3) which suffer most (4) revised top 3 picks (5) what to do with the NBIS position specifically. 200 words max.';
+  var resp=await callClaude(prompt,600);
+  loading.style.display='none';
+  if(resp){result.textContent=resp;result.style.display='block';}
+  else{result.textContent='AI scenario analysis unavailable. Please try again.';result.style.display='block';}
+}
+
+// ── INPUT ─────────────────────────────────────────────────────
+function onA(){var v=parseInt(document.getElementById('aI').value)||0;document.getElementById('aF').textContent=v?'= '+fmtI(v):'';document.querySelectorAll('.preset').forEach(function(p){p.classList.remove('sel');});}
+function setA(v){document.getElementById('aI').value=v;document.getElementById('aF').textContent='= '+fmtI(v);var m={50000:'50K',100000:'1L',200000:'2L',500000:'5L',1000000:'10L'};document.querySelectorAll('.preset').forEach(function(p){p.classList.toggle('sel',p.textContent.trim()===(m[v]||''));});}
+function goBack(){document.getElementById('app').style.display='none';document.getElementById('ip').style.display='flex';}
+setA(100000);
+</script>
+</body>
+</html>
